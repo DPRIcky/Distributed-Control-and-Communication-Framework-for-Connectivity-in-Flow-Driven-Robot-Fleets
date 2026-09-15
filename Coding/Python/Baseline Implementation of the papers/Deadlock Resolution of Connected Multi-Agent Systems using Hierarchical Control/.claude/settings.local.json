@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(dir /B \"c:\\Users\\prajj\\OneDrive - Arizona State University\\ASU\\PhD\\Research\\Coding\\Python\\Baseline Implementation of the papers\\Deadlock Resolution of Connected Multi-Agent Systems using Hierarchical Control\")",
+      "Bash(python:*)",
+      "Bash(timeout 30 python:*)",
+      "Bash(timeout 25 python:*)",
+      "Bash(timeout 60 python:*)"
+    ]
+  }
+}

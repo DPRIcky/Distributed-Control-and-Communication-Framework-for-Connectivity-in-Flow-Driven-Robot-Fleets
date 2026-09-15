@@ -1,0 +1,982 @@
+\documentclass[conference]{IEEEconf}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{float}     % enables [H]
+\usepackage{placeins}  % enables \FloatBarrier
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\DeclareMathOperator{\degr}{deg}     % degree operator: \degr(i)
+\newcommand{\Ni}{\mathcal{N}}        % neighbor set: \Ni(i)
+\newcommand{\CN}[2]{\Ni(#1)\cap\Ni(#2)} % common neighbors: \CN{i}{j}
+\newcommand{\Nii}[1]{\Ni^{(2)}(#1)}  % 2-hop neighbors
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\newcommand{\xyu}[1]{\textcolor{magenta}{#1}}
+
+\theoremstyle{plain}
+\newtheorem{assumption}{Assumption}
+\newtheorem{theorem}{Theorem} % Defines the 'theorem' environment
+\newtheorem{lemma}{Lemma}     % Defines the 'lemma' environment
+\newtheorem{definition}{Definition} % Defines the 'definition' environment
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+\title{\LARGE \bf
+Distributed Control Framework for Connectivity Preservation and Collective Reconfiguration in Flow-Driven Robot Fleets}
+\author{Prajjwal Dutta, Geoff Hollinger, and Xi Yu\\
+%	{\small Department of Mechanical Engineering and Applied Mechanics} \\
+%	University of Pennsylvania, Philadelphia, USA \\
+%		\{xyureka,m.hsieh\}@seas.upenn.edu
+%\thanks{*We gratefully acknowledge the support of ONR Award No. N00014-17-1-2690 and ARL DCIST CRA W911NF-17-2-0181.}
+ \thanks{This work was supported by the NSF Awards 2322055 and 2529791.}
+ \thanks{P. Dutta and X. Yu is with the School of Manufacturing Systems and Networks at Arizona State University (e-mail: \{pdutta9, xyu\}@asu.edu).
+ G. Holinger is with the Department of Mechanical, Industrial, and Manufacturing Engineering at Oregon State University (e-mail: Geoff.Hollinger@oregonstate.edu).
+}
+ }
+
+\begin{document}
+
+% \title{Decentralized Connectivity-Aware Control for Autonomous Underwater Vehicles under Environmental Disturbances*\\
+% \thanks{This Project is funded by NSF Grant}
+% }
+
+% \author{\IEEEauthorblockN{1\textsuperscript{st} Prajjwal Dutta}
+% \IEEEauthorblockA{\textit{School of Manufacturing Systems and Networks} \\
+% \textit{Arizona State University}\\
+% Tempe, AZ \\
+% pdutta9@asu.edu}
+% \and
+% \IEEEauthorblockN{2\textsuperscript{nd} Geoff Hollinger}
+% \IEEEauthorblockA{\textit{College of Engineering} \\
+% \textit{Oregon State University}\\
+% Corvallis, OR  \\
+% Geoff.Hollinger@oregonstate.edu}
+% \and
+% \IEEEauthorblockN{3\textsuperscript{rd} Xi Yu}
+% \IEEEauthorblockA{\textit{School of Manufacturing Systems and Networks} \\
+% \textit{Arizona State University}\\
+% Tempe, AZ \\
+% xyu@asu.edu}
+% }
+
+\maketitle
+
+\begin{abstract}
+% Autonomous underwater vehicles (AUVs) deployed in under-ice and flow-disturbed environments must preserve network connectivity despite limited acoustic communication, environmental disturbances, and the absence of centralized supervision. Existing strategies often depend on centralized spectral methods or precomputed spanning trees, which require global information and are ill-suited for bandwidth- and energy-constrained deployments. This paper presents a decentralized framework that integrates distributed critical-edge detection with local pruning, recouping, and rewiring, combined with decentralized Control Lyapunov Function and Control Barrier Function (CLF--CBF) quadratic programs. Each robot enforces CBF constraints with respect to all neighbors, ensuring safety and connectivity, while the graph layer dynamically reduces redundancy by identifying and restructuring non-critical links. A physics-informed underwater environment model with drag, vortices, buoyancy, and turbulence is used to evaluate performance. Simulation results show that the proposed approach preserves connectivity while reducing redundant edges, achieving goal-seeking performance comparable to centralized methods, and significantly outperforming uncontrolled random motion. The results demonstrate the potential of decentralized connectivity-aware control for scalable, resilient AUV swarms operating in challenging sub-ice environments.
+We study the deployment of underwater robot fleets in large, flow dominated environments where localization is denied, communication is limited, and energy is scarce. The robots need to travel long distances, detect emerging targets, and stay connected using only local information. To meet these challenges we design a distributed framework that exploits natural drift and activates control only when required. The method begins with the robots deployed as a fully connected network. Using minimal information exchange, each robot prunes non-critical edges, producing a sparse and tree like structure that spans the entire team. Upon this structure we construct a distributed control Lyapunov function–control barrier function (CLF–CBF) framework. Each robot enforces barrier constraints to maintain the necessary connections, while redundant links are discarded when alternative paths emerge. When a target is discovered, this framework ensures the detecting robot attends the target, while the team reconfigures to provide a connected formation. This approach guarantees long term connectivity with very low control effort, and enables collective response to dynamic tasks. Simulations validates the framework and demonstrates that it yields spanning structures that converge toward a minimum spanning tree over time, highlighting both its efficiency and robustness.
+\end{abstract}
+
+% \begin{IEEEkeywords}
+% Decentralized control, Connectivity maintenance, Barrier functions (CBFs), Lyapunov functions (CLFs), autonomous underwater vehicles (AUVs), Brownian motion, Underwater modeling.
+% \end{IEEEkeywords}
+
+\section{Introduction}
+
+We are interested in deploying a fleet of underwater robots into large-scale, challenging environments such as the deep ocean and under-ice cavities, where localization is denied, communication bandwidth is limited, and the environment is dominated by dynamic flows and eddies \cite{muto2024}. 
+These robots must traverse long distances on limited energy budgets, discover emerging regions of interest, sample the environment, and relay data, all while relying on intermittent and bandwidth-limited communication \cite{schiel2024chirps, schiel2024role}.
+
+The central challenge is to design strategies that enable the fleet to (i) efficiently cover a large spatial domain to discover emerging targets while maintaining network connectivity, and (ii) realize a globally connected configuration using only localized information and limited communication.
+
+% Exploring sub-ice ocean cavities is critical for understanding glacial melt and predicting global sea-level rise. These extreme environments are among the most challenging places for autonomous systems: they are remote, shielded from satellite navigation, and deny radio or Global Positioning System (GPS) access. Communication is limited to low-bandwidth, high-latency acoustic signaling, which is easily disrupted by obstacles, multipath effects, and flow dynamics. In such conditions, relying on a central command structure is infeasible. Instead, autonomous underwater vehicles (AUVs) must coordinate in a \textit{fully decentralized} manner, exchanging minimal information with local neighbors while ensuring that the overall fleet remains connected.  
+
+% Maintaining connectivity in these scenarios is non-trivial. Sparse and intermittent communication, combined with environmental disturbances, can fragment the network. At the same time, enforcing all possible links leads to dense communication graphs that waste energy, increase interference, and constrain mobility. What is needed is a distributed strategy that preserves only the essential edges required for global connectivity while enabling each agent to make local decisions that remain robust to flow and communication uncertainty.  
+
+% The mothership project takes on this challenge by deploying a mothership AUV that releases swarms of low-cost passenger robots into under-ice cavities. These agents must self-organize, maintain sparse but resilient communication structures, and adapt to environmental disturbances without centralized supervision. This paper contributes to this vision by developing a framework for \textit{connectivity-aware coordination} that couples graph-theoretic sparsification with local control under flow disturbances.  
+
+% The main contributions of this paper are as follows:
+% \begin{enumerate}
+%     \item Critical edge detection, pruning, and recouping. We extend distributed bridge-detection methods to identify critical links, prune redundant edges using a redundancy-aware priority metric, and recoup connectivity when pruning risks of fragmentation.
+%     \item Decentralized rewiring optimization. Each agent evaluates $k$-hop alternatives and performs safe local rewiring to improve efficiency while preserving global connectivity.
+%     \item Integration of Control Lyapunov Function (CLF) and Control Barrier Function (CBF) based controllers into evolving graphs. All robots solve local Quadratic Programs (QPs) that combine CLFs for goal convergence or relay maintenance with CBFs for safety and connectivity, applied only to the evolving pruned/optimized edge set.
+% \end{enumerate}
+
+% We validate the proposed framework in a physics-informed underwater flow-field environment that models drag, vortices, buoyancy, and stochastic disturbances, demonstrating its robustness and direct relevance to large-scale exploration under ice.
+
+Our proposed approach is to deploy the robots together and then allow them to drift with the prevailing flow . Control effort is only applied when it is necessary. This includes situations when the robots risk drifting outside a prescribed region or when they risk losing connectivity. In this way the formation disperses while staying connected, and the group can also reconfigure when a new target location is discovered or generated \cite{butler2025}. This strategy is bold, but it is supported by recent progress. Previous work has shown that surface vehicles can drift with the flow while using minimal control to remain in gyre like structures \cite{wei2019}, or track the periodicity of revisits via intermittent control triggered by prescribed conditions \cite{knizhnik2022}. In addition, broadly adopted models describe the uncontrolled motion of objects in water as drift combined with Brownian type diffusion \cite{taylor1922, okubo1971, majda1999}, which align with observation on underwater robots \cite{berlinger2021, quattrini2023}. This indicates that our fleet will approximately follow the main direction of the flow while also dispersing stochastically.
+
+Although dispersion promotes coverage of large task spaces, two challenges remain open. The first is how to maintain connectivity. The second is how to enable reconfiguration around targets while working with unreliable communication that cannot support centralized control. Prior work on connectivity maintenance and target surrounding has emphasized the importance of graph theoretic methods \cite{olfati2007,dimartino2006}. Control barrier functions (CBFs) have received attention for their energy efficiency in this setting. For example, CBFs have been applied to the Fiedler value of the network graph in order to maintain connectivity \cite{capelli2020}. This approach is effective but it requires centralized and computationally expensive eigenvalue calculations. Other work has applied distributed CBF formulations that keep robots pairwise within communication range \cite{sabattini2013,capelli2021}. More recently, a hybrid framework was introduced that combines distributed CBFs with a graph theoretic tool, where each robot interacts only with a limited set of neighbors defined by a minimum spanning tree (MST) \cite{yang2023}. This solution is promising since each robot only applies CBF to itself and to selected neighbors, but it still requires generating a minimum spanning tree that depends on global information.
+
+In our case a feasible framework must combine two ingredients. The first is a distributed neighbor selection strategy so that each robot chooses a limited set of neighbors to remain within communication range. The second is a local control law applied only to these neighbors. Together these two features must guarantee global connectivity. Work on spanning trees has shown that distributed verification methods exist, but the actual construction of a minimum spanning tree is classically centralized \cite{boruvka1926, kruskal1956, prim1957}. Progress in fully distributed protocol for exact MST construction \cite{gallager1983, awerbuch1987} remain communication-intensive. As a result, several approximate or near-optimal distributed methods have been proposed, but they do not achieve exact solutions \cite{khan2008}.
+
+We take advantage of two physical features of our problem. First, the robots are deployed together, and the initial configuration forms a fully connected graph. Second, the purpose of a spanning tree is to reduce long range connections. A robot should drop links to distant neighbors whenever a closer neighbor can maintain connectivity at lower control cost. Recent progress \cite{venkateswaran2024} has also shown that robots can verify whether an edge is critical, meaning that breaking it would break the network connectivity, using distributed procedures that rely only on very limited data sharing. Based on these observations we propose a distributed method that requires very little information exchange. Each robot shares only a list of its neighbor indices. With this limited data the robots identify and prune edges that are not critical to connectivity. But unlike demonstrated in \cite{venkateswaran2024}, we are introducing an algorithm which can identify and prune the edges concurrently rather than a traditional sequential approach still ensuring maintaining connectivity between all the robots. The result is a sparse and tree-like structure that spans the entire network. Once this structure is established, we construct a distributed control Lyapunov function–control barrier function (CLF–CBF) framework upon it. Each robot maintains only the necessary connections by enforcing CBF constraints, and redundant links are pruned whenever new edges provide alternative paths. When a target is detected, the framework drives the robot that discovers it toward the target, while the rest of the team reconfigures to form a supporting network from the bottom up. As a result, the team preserves connectivity, expands to maintain coverage, and collectively shifts toward the target location.
+
+Simulations demonstrate that this method can efficiently identify the critical edges and prune the non critical ones while reaching a target location of the environment and keep the network connected. Over deployment time the spanning structure produced by this distributed pruning strategy converges toward a minimum spanning tree. This shows both its long term efficiency and its robustness in flow dominated and resource constrained conditions.
+
+This paper is organized as follows. Sec.~\ref{sec:prob} introduces the problem. Sec.~\ref{sec:method} presents our methodology of achieving the structure and moving towards the desired location. Sec.~\ref{sec:conn_guarantee} certifies the preservation of the communication links over the graph. Sec.~\ref{sec:experiments} explains the experimental setup and Sec.~\ref{sec:results} demonstrates the results of the proposed method via simulated results. Sec.~\ref{sec:conclusion} concluded this work. % begins by introducing the background and problem formulation, outlining the assumptions on communication, dispersion, and formulating the problem statement. It then presents the proposed methodology, starting with distributed edge detection and pruning, and extending to a decentralized CLF--CBF control framework built on the resulting sparse network backbone. The simulation setup and results are described next, including comparisons with centralized baselines and MST benchmarks. The paper concludes with a discussion of key findings and potential directions for future work.
+
+%\section{Literature Review}
+
+% Preservation of connectivity in robot teams has been studied through several approaches. Classic methods maintain global connectivity through spectral analysis, for example, by ensuring a positive lower bound on the algebraic connectivity of the graph (the second smallest Laplacian eigenvalue). These techniques provide elegant guarantees, but often assume global knowledge or centralized computation, which is not suited to bandwidth and energy-constrained deployments. A foundational survey of distributed coordination and consensus is a stepping stone to connectivity control \cite{1}. 
+
+% Another widely used approach is based on CBFs, which enforce safety-critical constraints in real time via QPs. CBFs are effective for collision avoidance and communication range maintenance \cite{2}. Safety constraints must be enforced for all agents within interaction range to guarantee collision-free operation. Connectivity preservation can also be encoded as a barrier function.
+
+% From the graph-theoretic side, several algorithms have been proposed for detecting critical edges, or bridges, in undirected networks. Yang, Lyu, and Luo revisited minimally constrained multi-robot coordination with explicit line-of-sight connectivity maintenance \cite{3}. Although this effectively preserves a minimal spanning structure, it is fundamentally centralized, as the spanning tree is computed globally and broadcast to the team. Other centralized approaches exploit the algebraic connectivity of the Laplacian. De Gennaro and Jadbabaie proposed gradient-based strategies to increase the second smallest eigenvalue ($\lambda_2$) \cite{4}, and later works incorporated CBFs into $\lambda_2$-based formulations \cite{5}. However, all of these methods depend on globally shared spectral information, making them difficult to implement in resource constrained multi-robot settings.  
+
+% In contrast, decentralized strategies rely only on local neighbor information. Sabattini introduced decentralized rules for reconfigurable coordination based on local connectivity and collision avoidance specifications \cite{6}, and subsequent work extended CBF formulations to account for delays and disturbances, providing decentralized controllers that maintain safety under imperfect communication \cite{7}. These approaches improve scalability but typically stop at enforcing pairwise connectivity or safety constraints; they do not leverage critical-edge detection to prune redundancy or restructure the network dynamically. Our work adopts distributed critical edge detection as a baseline, building on the method presented in \cite{8}. We extend this foundation by coupling pruning, recouping, and rewiring with decentralized CLF-CBF controllers. This represents a shift from centralized spanning tree or spectral methods toward a fully decentralized, connectivity-aware framework.
+
+% In underwater multi-robot systems, dispersal and spreading behaviors have been studied as mechanisms to improve coverage and robustness in exploration tasks. For example, Berlinger demonstrated that implicit coordination strategies allow AUV groups to maintain distributed formations in three-dimensional underwater environments, enabling sampling and mapping under visibility constraints \cite{9}. These studies show that dispersive motion is both natural and often beneficial for underwater collectives, but they generally do not address connectivity preservation under acoustic communication limits. Furthermore, environmental disturbances such as currents and drag can intensify dispersive effects, complicating coordination and highlighting the difficulty of maintaining reliable inter-vehicle communication in practice.
+
+% So, the underwater and sub-ice robotics literature emphasizes the operational constraints that motivate decentralized solutions. Acoustic communication links are characterized by low bandwidth and high latency, and are easily disrupted by multipath interference or occlusions \cite{9}. Moreover, AUV motion is perturbed by external currents, vortices, and drag forces, which degrade control accuracy and increase energy consumption \cite{10}. These challenges have been highlighted not only in surveys of underwater communication and control, but also in recent modeling studies of AUV fleets under environmental disturbances, including our prior work on connectivity-aware coordination and underwater flow-field simulation \cite{11}. In such conditions, centralized strategies are impractical, and robots must rely on neighbor based coordination.
+
+% In summary, existing approaches either maintain connectivity, assuming a centrally computed spanning structure, or detect critical edges without integrating them into dynamic control. The contribution of this work is to unify these strands by combining distributed critical edge detection with pruning and recouping of redundant links, enabling local rewiring optimization, and embedding them into a decentralized CLF-CBF controller. This shift from centralized, precomputed structures, as demonstrated in \cite{3}, to a fully decentralized, neighbor-only implementation constitutes the key conceptual advance of our approach.
+
+\section{Background and Problem Formulation}\label{sec:prob}
+
+We now formalize the problem. This section introduces the robot dynamics model, states the assumptions, defines the graph-theoretic notation, and presents the formal problem statement.
+\subsection{Advection-diffusion model \cite{taylor1922, okubo1971, majda1999}}
+
+We model a fleet of $N$ robots operating in $\mathbb{R}^n$ (with $n=2$, used for visualization in our simulations) released together in the water, their collective motion can be decomposed into a drift component induced by an ambient flow field and a stochastic dispersion component due to unexpected turbulence and small perturbations. Let $x_i(t) \in \mathbb{R}^n$ denote the position of the $i$-th robot at time $t$, where $i\in \{1,2,...,N\}$, and let  
+\[
+\bar{x}(t) = \frac{1}{N} \sum_{i=1}^N x_i(t)
+\]  
+be the center of mass of the group. 
+
+The evolution of the center of mass is governed primarily by the advective flow field, i.e.,  
+\[
+\dot{\bar{x}}(t) \approx f_{\text{flow}}(\bar{x}(t),t),
+\]  
+where $f_{\text{flow}}$ is the background velocity field. Each individual object then deviates from $\bar{x}(t)$ due to unresolved small-scale turbulence and fluctuations, which can be modeled as Brownian motion:  
+\begin{equation}
+\begin{gathered}
+    dx_i(t) = (f_{\text{flow}}(x_i(t), t) + v_i(t)) dt + \sigma_{\text{diff}} dW_i(t) \\
+    \dot{v}_i(t) = u_i(t) - \gamma v_i(t)
+\end{gathered}
+\end{equation}
+\noindent where $v_i(t) \in \mathbb{R}^n$ is the velocity of each individual robot, $u_i(t) \in \mathbb{R}^n$ is the thrust, $\gamma > 0$ is a velocity damping factor, and $W_i(t)$ is a Wiener process capturing diffusion (with intensity $\sigma_{\text{diff}}$).
+
+Thus the group drifts together with the flow through the motion of $\bar{x}(t)$, while individuals spread stochastically around the drifting center due to the independent diffusion terms.
+
+As an example, the flow field is a base current plus a spatially varying swirl:
+\begin{equation*}
+f_{\text{flow}}(x,t) = v_{\text{base}}(t) + A_{\text{swirl}}
+\begin{bmatrix}
+    \sin \! \left( \tfrac{x_2 + t}{s_{\text{swirl}}} \right) \\
+    \cos \! \left( \tfrac{x_1 + 0.3t}{s_{\text{swirl}}} \right)
+\end{bmatrix}
+\end{equation*}
+For two robots $i$ and $j$, the flow difference is generally nonzero when $x_{i} \neq x_{j}$:
+\begin{equation*}
+f_{\text{flow}}(x_i, t) - f_{\text{flow}}(x_j, t) = A_{\text{swirl}}
+\left[ \begin{smallmatrix}
+    \sin \! \left( \frac{x_{i,2} + t}{s_{\text{swirl}}} \right) - \sin \! \left( \frac{x_{j,2} + t}{s_{\text{swirl}}} \right) \\
+    \cos \! \left( \frac{x_{i,1} + 0.3t}{s_{\text{swirl}}} \right) - \cos \! \left( \frac{x_{j,1} + 0.3t}{s_{\text{swirl}}} \right)
+\end{smallmatrix} \right] \neq 0
+\end{equation*}
+
+We assume that the ambient flow is spatially smooth and its differential drift is bounded:
+$$
+\|f_{\text{flow}}(x_i, t) - f_{\text{flow}}(x_j, t)\| \le L_f \|x_i - x_j\|, \quad \forall x_i, x_j, \quad \forall t \ge 0.
+$$
+If the flow were spatially uniform, it would cancel in the relative dynamics. This assumption explicitly captures the non-uniform, spatially varying regime by bounding how much the flow can differ across inter-robot distances. For the swirl flow field, one can take this flow as globally lipschitz in $x$ with a lipschitz constant $L_f \approx A_{\text{swirl}} / s_{\text{swirl}}$.
+
+\subsection{Control-affine model}
+For controller synthesis and theoretical analysis, we now abstract the above simulation dynamics into a compact control-affine model on $x_i$:
+\begin{equation}\label{eq:adv-dif}
+\dot{x}_i(t) = f_{\text{flow}}(x_i(t),t) + u_i(t) + d_i(t), \quad \|d_i(t)\|\le \bar d.
+\end{equation}
+
+With the control input $u_i(t)$ set to zero throughout the deployment time window, the robots will be passively advected by the background flow while gradually dispersing due to stochastic perturbations. Here the unmodeled effects of drag, turbulance and stochastic perturbations are captured by a bounded disturbance term:
+
+$$\|d_i(t)\| \le \bar{d}, \quad \forall i \in \mathcal{V}, \quad \forall t \ge 0. $$
+This term corresponds to the combined effect of Brownian motion, transient velocity dynamics, and model uncertainties that are abstracted away in the reduced model.
+
+We present two different dynamics descriptions because they serve different purposes. The advection-diffusion model supports physical interpretation and simulation realism, while the control affine model is used to controller design and theoretical analysis in section \ref{sec:conn_guarantee}. The flow term is evaluated at each robot's position, so it is not a common input that is identical for all the robots in relative coordinates ${z_{ij}} = {x_i} - {x_j}$,
+\begin{equation*}
+    \dot{z}_{ij} = (f_{\text{flow}}(x_i, t) - f_{\text{flow}}(x_j, t)) + (u_i - u_j) + (d_i - d_j)
+\end{equation*}
+So, the flow contribution cancels only in the special case of spatially uniform flow. In our setting, spatial variation of $f_{flow}$ is explicitly bounded (assumption), which is quantity that enters the connectivity and invariance analysis.
+
+The time derivative of the squared inter-robot distance can be written as
+\begin{equation*}
+    \dot{z}_{ij}^2 = 2{z}_{ij}^\top \Big( \big( f_{\text{flow}}(x_i,t) - f_{\text{flow}}(x_j,t) \big) + (v_i - v_j) \Big)
+\end{equation*}
+This expression makes explicit that the flow contributes through the \textit{difference term} $f_{\text{flow}}(x_i,t)-f_{\text{flow}}(x_j,t)$.
+
+
+Notice that the choice of a two-dimensional environment is made solely for ease of visualization. The developed method is dimension-agnostic and extends directly to three-dimensional settings.
+
+\subsection{Assumptions on communication, control and connectivity}
+\label{subsec:assumptions}
+
+\begin{assumption}[Bounded actuation and bounded exogenous effects]
+\label{ass:A1}
+
+At time $t$, the communication network is an undirected disk graph $\mathcal{G}_t=(\mathcal{V},\mathcal{E}_t)$ with range $R_{\max}>0$:
+\begin{equation}
+(i,j)\in\mathcal{E}_t \quad \Longleftrightarrow \quad \|x_i(t)-x_j(t)\|\le R_{\max}.
+\label{eq:disk_graph}
+\end{equation}
+Each robot $i$ communicates only with its neighbors in its neighbouring set
+\begin{equation}
+\mathcal{N}_i(t) \triangleq \{\, j\in\mathcal{V} : \|x_i(t)-x_j(t)\|\le R_{\max}\,\},
+\label{eq:neighbors}
+\end{equation}
+using only neighbor communication without any central coordination. Each robot has a unique identifier to index neighbor messages consistently. The initial graph $\mathcal{G}_0$ is connected.
+
+For each robot $i$ and all $t\ge 0$, the control is bounded as $\|u_i(t)\|\le u_{\max}$.
+The unmodeled disturbance is bounded by $\|d_i(t)\|\le \bar d$.
+The ambient flow field $f_{\mathrm{flow}}(x,t)$ is Lipschitz in space with constant $L_f$ over the operating domain, i.e.,
+$\|f_{\mathrm{flow}}(x,t)-f_{\mathrm{flow}}(y,t)\|\le L_f\|x-y\|$ for all relevant $x,y,t$.
+\end{assumption}
+
+\begin{assumption}[Feasible safety \& connectivity margins]
+\label{ass:A2}
+There exist margins $\varepsilon_s>0$ and $\varepsilon_c>0$ such that the required inter-robot separation and
+communication constraints are simultaneously feasible:
+\[
+0<d_{\min}+\varepsilon_s < R_{\max}-\varepsilon_c.
+\]
+Moreover, the available control authority is sufficient to counter worst-case relative drift/disturbance over the
+communication range, i.e.,
+\[
+u_{\max} \;>\; \bar d \;+\; L_f R_{\max}.
+\]
+\end{assumption}
+
+\begin{assumption}[Local communication model and initial connectivity]
+\label{ass:A3}
+Robots communicate over an undirected proximity graph $\mathcal{G}(t)=(\mathcal{V},\mathcal{E}(t))$ with range $R_{\max}$,
+where $(i,j)\in\mathcal{E}(t)$ implies $\|x_i(t)-x_j(t)\|\le R_{\max}$, and each robot accesses only 1-hop neighbor
+information. The initial graph $\mathcal{G}(0)$ is connected.
+\end{assumption}
+
+\begin{assumption}[Time-scale separation for distributed updates]
+\label{ass:A4}
+The distributed estimation/pruning updates run on a faster time scale than the robot motion, so that during one
+algorithmic iteration the neighbor set can be treated as constant and required neighbor-to-neighbor messages are
+available for that iteration. Equivalently, topology variations are slow relative to the update period.
+\end{assumption}
+
+% \begin{assumption}
+% \label{ass:A1}
+% For all robots $i$ and all $t\ge 0$, the inputs are bounded and the control authority dominates the worst case advection  and disturbance over the communication range:
+% \begin{equation}
+% \|u_i(t)\| \le u_{\max}
+% \label{eq:A1}
+% \end{equation}
+% \begin{equation}
+% u_{\max} \;>\; \bar d + L_f R_{\max}
+% \label{eq:A2}
+% \end{equation}
+% \end{assumption}
+
+% \begin{assumption}
+% \label{ass:A2}
+% The minimum separation distance is strictly smaller than the communication range with a nonzero buffer:
+% \begin{equation}
+% d_{\min} \;<\; R_{\max} - \varepsilon
+% \label{eq:A3}
+% \end{equation}
+% for some margin $\varepsilon>0$.
+% \end{assumption}c
+
+% \begin{assumption}
+% \label{ass:A3}
+% At time $t$, the communication network is an undirected disk graph $\mathcal{G}_t=(\mathcal{V},\mathcal{E}_t)$ with range $R_{\max}>0$:
+% \begin{equation}
+% (i,j)\in\mathcal{E}_t \quad \Longleftrightarrow \quad \|x_i(t)-x_j(t)\|\le R_{\max}.
+% \label{eq:disk_graph}
+% \end{equation}
+% Each robot $i$ communicates only with its neighbors in its neighbouring set
+% \begin{equation}
+% \mathcal{N}_i(t) \triangleq \{\, j\in\mathcal{V} : \|x_i(t)-x_j(t)\|\le R_{\max}\,\},
+% \label{eq:neighbors}
+% \end{equation}
+% using only neighbor communication without any central coordination. Each robot has a unique identifier to index neighbor messages consistently. The initial graph $\mathcal{G}_0$ is connected.
+% \end{assumption}
+
+% \begin{assumption}
+% \label{ass:A4}
+%     During the distributed consensus/pruning phases, $\mathcal{G}_{topo}$ remains connected and varies slowly enough that information can propagate across the network and the required consensus iterations converge before $\mathcal{G}_{topo}$ changes significantly.
+% \end{assumption}
+
+%We model these $N$ robots indexed by $i \in \mathcal{V}=\{1,\dots,N\}$, each with planar position $x_i \in \mathbb{R}^2$ and bounded control input $u_i \in \mathbb{R}^2$, with $\|u_i\|\leq u_{\max}$. Robots follow single-integrator dynamics 
+%\[
+%\dot{x}_i = u_i,
+%\] 
+%and a minimum pairwise separation distance $d_{\min}>0$ must be maintained to avoid collisions.  
+
+%The communication network is described by the standard disk model with nominal range $R_{\max}>0$. At time $t$, an undirected edge $(i,j)$ exists between robots $i$ and $j$ if $\|x_i(t)-x_j(t)\| \leq R_{\max}$. The resulting network is represented by the undirected graph $\mathcal{G}_t = (\mathcal{V},\mathcal{E}_t)$, where the vertex set $\mathcal{V}$ corresponds to robots and the edge set $\mathcal{E}_t$ encodes pairwise communication links. The neighborhood of robot $i$ is defined as  
+%\[
+%\Ni(i) = \{ j \in \mathcal{V} : \|x_i(t)-x_j(t)\| \leq R_{\max} \},
+%\]  
+%so that agent $i$ observes relative states and exchanges messages only with robots in $\Ni(i)$. We denote the degree of node $i$ as $\deg(i)=|\Ni(i)|$. The set of common neighbors of two nodes $i,j$ is $\CN{i}{j}$, and the two-hop neighbors of $i$ are $\Nii{i} = \{k \in \mathcal{V} : \exists j \in \Ni(i) \text{ with } k \in \Ni(j)\}$. The initial communication graph $\mathcal{G}_0=(\mathcal{V},\mathcal{E}_0)$ is assumed to be connected. Connectivity is defined in the standard graph-theoretic sense: the graph $\mathcal{G}_t$ is connected if, for every pair $i,j \in \mathcal{V}$, there exists a path in $\mathcal{E}_t$ linking them. No global positions, centralized maps, or spectral information are assumed to be available.  
+
+\subsection{Problem Statement}
+\label{subsec:problem_statement}
+
+Consider the multi-robot system introduced above with dynamics~\eqref{eq:adv-dif} and communication model~\eqref{eq:disk_graph}--\eqref{eq:neighbors}. The robots are advected by a spatially varying ambient flow field $f_{\text{flow}}(x,t)$ and are subject to bounded disturbances $d_i(t)$, which together induce natural dispersion. While this dispersion promotes exploration, it can also stretch inter-robot distances and break communication links.
+
+Let $\mathcal{G}_t=(\mathcal{V},\mathcal{E}_t)$ denote the physical disk graph induced by the range $R_{\max}$ (Assumption~\ref{ass:A3}). During the mission, robots may intentionally sparsify the network by maintaining a time-varying coordination subgraph $\mathcal{G}_{\mathrm{topo}}(t)=(\mathcal{V},\mathcal{E}_{\mathrm{topo}}(t))$ with $\mathcal{E}_{\mathrm{topo}}(t)\subseteq \mathcal{E}_t$.
+
+We formalize the hard safety/connectivity requirements using the constraint sets
+\begin{align*}
+\mathcal{C}_{\mathrm{safe}} &\triangleq \Big\{x\in(\mathbb{R}^n)^N : \|x_i-x_j\|\ge d_{\min},\;\forall i\neq j\Big\},\\
+\mathcal{C}_{\mathrm{conn}}(\mathcal{E}) &\triangleq \Big\{x\in(\mathbb{R}^n)^N : \|x_i-x_j\|\le R_{\max},\;\forall (i,j)\in\mathcal{E}\Big\},
+\end{align*}
+and the admissible input set $\mathcal{U}\triangleq\{(u_1,\dots,u_N):\|u_i\|\le u_{\max}\;\forall i\}$ (Assumption~\ref{ass:A1}).
+
+Targets are not known a priori and are detected only when an agent enters its sensing footprint. During exploration (no detection), the team should drift with $f_{\text{flow}}$ while remaining connected and reducing communication redundancy. Upon target detection, a subset of agents should initiate goal-seeking behavior while the remaining agents act as relays so that end-to-end connectivity across the fleet is preserved.
+
+Each agent $i$ has access only to local information: (i)~its own state $x_i$; (ii)~relative states $\{x_j-x_i\}_{j\in\mathcal{N}_i(t)}$ and messages from one-hop neighbors; and (iii)~local graph quantities, like two hop connection, are computable through neighbor exchanges. We denote this information set by $\mathcal{I}_i(t)$. No centralized computation, global maps, spanning trees, or spectral quantities are assumed.
+
+\noindent Distributed connectivity-preserving control with topology sparsification.
+Design distributed policies consisting of (i)~a feedback control law $u_i(t)=\kappa_i(\mathcal{I}_i(t))$ for each agent and (ii)~a distributed pruning rule that generates $\mathcal{E}_{\mathrm{topo}}(t)\subseteq\mathcal{E}_t$, using only local information, such that for all $t\ge 0$:
+\begin{enumerate}
+    \item  $x(t)\in\mathcal{C}_{\mathrm{safe}}$ and $x(t)\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_{\mathrm{topo}}(t))$, and the maintained graph $\mathcal{G}_{\mathrm{topo}}(t)$ remains connected.
+    \item The controller exploits advection and uses minimal actuation.
+    \item The team spreads for coverage during exploration and, upon target detection, reconfigures so that designated agents make progress toward the target while relays preserve end-to-end connectivity.
+\end{enumerate}
+
+The proposed framework in Sec.~\ref{sec:method} provides a fully distributed realization of these objectives via distributed topology sparsification and decentralized control.
+
+
+%\subsection{Problem Statement}
+
+%Consider the robots and communication network introduced in the previous section.  
+%The robots are advected by the background flow field $f_{\text{flow}}$ and subject to stochastic perturbations that induce dispersion (as introduce in eq.~\eqref{eq:adv-dif}).  
+%This natural dispersion promotes exploration but risks breaking connectivity.  
+%Locations of interest are not known a priori and are only detected when an agent enters its sensing footprint.  
+%During exploration phases (when no target is detected), the team drifts with %$f_{\text{flow}}$ while maintaining connectivity and sparsifying the communication graph.  
+%When a target is detected, a local subset of agents initiates goal-seeking behavior while the remaining agents act as relays to preserve end-to-end connectivity across the fleet.  
+
+%Each agent $i$ has access to:  
+%(i) its own state $x_i$;  
+%(ii) relative states $\{x_j - x_i\}_{j \in \Ni(i)}$ and messages received from neighbors; and  
+%(iii) local graph quantities that can be computed through neighbor exchanges, such as two-hop information.  
+%No centralized computation, global identifiers beyond local exchanges, globally shared maps, spanning trees, or spectral quantities (e.g., eigenvalues) are assumed.  
+
+%The problem is therefore to design a \textbf{distributed control framework} that satisfies the following objectives:  
+
+%\begin{enumerate}
+ %   \item \textbf{Connectivity preservation:} ensure that the communication graph $\mathcal{G}_t$ remains connected for all $t$.  
+  %  \item \textbf{Energy efficiency:} leverage flow advection and activate inputs only when necessary.  
+  %  \item \textbf{Collective reconfiguration:} enable the team to spread out for coverage during exploration and shift toward newly discovered targets, while maintaining connectivity and collision avoidance.  
+%\end{enumerate}
+
+%The solution must rely exclusively on local relative information and distributed exchanges, without requiring any centralized solver or globally shared information.   
+
+
+% Given:
+% (i) an initially connected, range-induced graph $G_0=(V,E_0)$ with radius $R_{\max}$;
+% (ii) single-integrator agents evolving under an unknown flow field with bounded disturbances as above;
+% (iii) a safety distance $d_{\min}$ and input bound $u_{\max}$; and
+% (iv) neighbor-only information exchanges,
+
+% design fully decentralized, per-agent policies that, at each timestep:
+% (a) classify edges using only local exchanges and prune non-critical links while guaranteeing that $G_t$ remains connected and no node is isolated;
+% (b) perform local recouping within 1–2 hops to preserve efficiency and robustness against flow-induced drift and intermittent line-of-sight breaks; and
+% (c) compute control inputs $u_i$ via decentralized CLF–CBF that ensure safety and connectivity at all times and activate goal-seeking upon target detection,
+
+% so that the fleet uses limited energy (minimizes control effort), spreads out to cover space yet stays connected, and can reshuffle formation to send one or more robots to attend task locations while preserving end-to-end connectivity, all under environmental disturbances and without centralized supervision.
+
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Two-layer architecture}
+Our framework couples a \emph{graph layer} (discrete iterations $k=0,1,\dots$) with a \emph{control layer} (continuous time $t$).
+The graph layer executes a fully distributed \emph{adjacency-consensus and concurrent pruning} routine that reduces redundant links while preserving end-to-end connectivity.
+The control layer implements a CLF--CBF safety filter: a nominal CLF controller drives robots toward task goals, while CBF constraints enforce (i) collision avoidance with nearby robots and (ii) connectivity range maintenance for critical communication edges.
+
+\vspace{0.25em}
+\noindent
+\textbf{Notation.}
+Robots evolve under the control-affine model~\eqref{eq:adv-dif}.
+The instantaneous communication disk graph is defined in~\eqref{eq:disk_graph}--\eqref{eq:neighbors}.
+At pruning iteration $k$, let $\mathcal{E}(k)$ denote the set of \emph{active} communication links.
+For robot $i$, define the \emph{active neighbor set} $\mathcal{T}_i(k)\triangleq \{j:(i,j)\in \mathcal{E}(k)\}$.
+Separately, define a \emph{safety neighbor set} $\mathcal{S}_i(t)$  used only for collision avoidance.
+
+%------------------------------------------------
+\subsection{Graph layer: adjacency consensus with concurrent pruning}
+Each robot $\ell$ maintains a local estimate $A^\ell(k)\in\mathbb{R}^{N\times N}$ of the adjacency matrix \cite{venkateswaran2024}.
+At every iteration $k$, robot $\ell$ performs a consensus update using only 1-hop exchanges with $\mathcal{N}_\ell(k)$, followed immediately by a three-phase pruning step.
+
+\subsubsection{Adjacency matrix consensus update}
+Robot $\ell$ updates
+\begin{align}
+A^\ell(k{+}1) &= A^\ell(k) + T_d\,\Delta A^\ell(k),
+\label{eq:adj_consensus_1}\\
+\Delta A^\ell_{ij}(k) &=
+\sum_{p\in\mathcal{N}_\ell(k)} w_{\ell p}\Big(A^p_{ij}(k)-A^\ell_{ij}(k)\Big)
++ \varepsilon^\ell_{ij}(k),
+\label{eq:adj_consensus_2}
+\end{align}
+where $T_d>0$ is a stepsize, $w_{\ell p}$ are averaging weights and $\varepsilon^\ell_{ij}(k)$ injects local observations for edges incident to $\ell$.
+A common choice is an observation ``trust'' signal
+\begin{equation}
+t^\ell_{ij}(k)=\exp\!\left(-\frac{d_{ij}^2(k)}{\sigma^2}\right),
+\label{eq:trust}
+\end{equation}
+built from measured distance $d_{ij}(k)$ and parameter $\sigma>0$, and then setting $\varepsilon^\ell_{ij}(k)$ so that $A^\ell_{ij}$ is nudged toward $t^\ell_{ij}(k)$ for incident edges and unchanged otherwise.
+
+\subsubsection{Local progress metric and adaptive thresholds}
+To prevent aggressive pruning before estimates stabilize, each robot tracks a local disagreement energy, e.g.,
+\begin{equation}
+V_\ell(k)\triangleq \sum_{p\in\mathcal{N}_\ell(k)}\big\|A^\ell(k)-A^p(k)\big\|_F^2,
+\label{eq:local_lyap}
+\end{equation}
+and uses \emph{adaptive} schedules that transition from conservative to aggressive pruning:
+\begin{align}
+\varepsilon(k) &= \varepsilon_{\max} V_\ell(0)\exp\!\left(-\alpha \frac{k}{k_{\max}}\right)
++ \varepsilon_{\min} V_\ell(0),
+\label{eq:eps_sched}\\
+\mu(k) &= \mu_{\max}\exp\!\left(-\beta \frac{k}{k_{\max}}\right)+\mu_{\min}.
+\label{eq:mu_sched}
+\end{align}
+Here $\varepsilon(k)$ enforces minimum consensus progress per pruning step, and $\mu(k)$ is a safety margin for algebraic connectivity checks.
+
+\subsubsection{Three-phase concurrent pruning protocol}
+At the same iteration $k$, robots prune edges while consensus continues:
+\begin{itemize}
+\item \textbf{Phase 1 (Proposal):} robot $\ell$ locally evaluates candidate incident edges $e=(\ell,j)$ for removal using only $A^\ell(k)$ and neighbor messages. A candidate is proposed only if it satisfies:
+(i) an \emph{alternative path} exists between $\ell$ and $j$ after removing $e$,
+(ii) the resulting graph is predicted connected,
+(iii) the predicted algebraic connectivity satisfies $\lambda_2 > \lambda_{\min}+\mu(k)$, and
+(iv) a \emph{progress guard} holds, e.g., a one-step simulated update predicts
+$V_\ell(k{+}1)_{\text{sim}} < V_\ell(k)-\varepsilon(k)$.
+\item \textbf{Phase 2 (Negotiation):} edge $(i,j)$ may be removed only with \emph{bilateral consent}; the endpoints exchange accept or reject messages.
+\item \textbf{Phase 3 (Conflict resolution):} to avoid inconsistent simultaneous removals, robots apply a deterministic selection rule so that only a non-conflicting set of edges is removed at iteration $k$ . Practical tie-breakers prioritize pruning longer edges.
+\end{itemize}
+
+The output of the graph layer is the updated \emph{active} edge set $\mathcal{E}(k{+}1)$ and corresponding active neighbor sets $\mathcal{T}_i(k{+}1)$.
+
+%------------------------------------------------
+\subsection{Control layer: CLF goal-seeking with CBF safety \& critical-edge maintenance}
+Between pruning iterations, each robot runs a CLF--CBF controller under~\eqref{eq:adv-dif}.
+The CLF term drives robots toward task goals, while CBF constraints enforce:
+(i) \emph{collision avoidance} for all $j\in\mathcal{S}_i(t)$, and
+(ii) \emph{range maintenance} for all $j\in\mathcal{T}_i(k)$.
+
+\subsubsection{Barrier functions (pairwise safety and connectivity)}
+For any ordered pair $(i,j)$ define $z_{ij}\triangleq x_i-x_j$ and $r_{ij}\triangleq \|z_{ij}\|$.
+We use the standard squared-distance barriers
+\begin{align}
+h^{\mathrm{safe}}_{ij}(x) &\triangleq r_{ij}^2 - d_{\min}^2,
+\label{eq:h_safe}\\
+h^{\mathrm{conn}}_{ij}(x) &\triangleq R_{\max}^2 - r_{ij}^2,
+\label{eq:h_conn}
+\end{align}
+so that $h^{\mathrm{safe}}_{ij}\ge 0$ implies $\|x_i-x_j\|\ge d_{\min}$ and
+$h^{\mathrm{conn}}_{ij}\ge 0$ implies $\|x_i-x_j\|\le R_{\max}$.
+
+To handle spatially varying flow and bounded disturbances (Assumptions in Sec.~\ref{sec:prob}), we employ linear CBF inequalities.
+With extended class-$\mathcal{K}$ functions $\alpha_s,\alpha_c$, we enforce for each $(i,j)\in\mathcal{S}$:
+\begin{equation}
+2 z_{ij}^\top (u_i-u_j)\ \ge\ 2L_f r_{ij}^2 + 4\bar d\, r_{ij}\ -\ \alpha_s\!\big(h^{\mathrm{safe}}_{ij}(x)\big),
+\label{eq:robust_safe_cbf}
+\end{equation}
+and for each $(i,j)\in\mathcal{E}(k)$:
+\begin{equation}
+2 z_{ij}^\top (u_i-u_j)\ \le\ \alpha_c\!\big(h^{\mathrm{conn}}_{ij}(x)\big)\ -\ 2L_f r_{ij}^2 - 4\bar d\, r_{ij}.
+\label{eq:robust_conn_cbf}
+\end{equation}
+In implementation, each robot uses the most recently received neighbor control $u_j$ to render these constraints affine in its own decision variable $u_i$.
+
+\subsubsection{CLF objective and QP-based safety filter}
+Let $x_i^{\mathrm{goal}}(t)$ denote robot $i$'s goal reference.
+We adopt the quadratic CLF
+\begin{equation}
+V_i(x_i) \triangleq \|x_i-x_i^{\mathrm{goal}}(t)\|^2,
+\label{eq:clf_V}
+\end{equation}
+and a nominal goal-seeking command $u_i^{\mathrm{nom}}(t)$.
+Robot $i$ then computes a minimally modifying control via a quadratic program:
+\begin{align}
+u_i^\star(t) = \arg\min_{u_i,\ \delta_i}\quad &
+\|u_i-u_i^{\mathrm{nom}}\|^2 + \rho\,\delta_i^2
+\label{eq:clf_cbf_qp_obj}\\
+\text{s.t.}\quad
+& \dot V_i(x_i) \le -c V_i(x_i) + \delta_i
+\label{eq:clf_constraint}\\
+& \eqref{eq:robust_safe_cbf}\ \ \forall j\in\mathcal{S}_i(t),\qquad
+\eqref{eq:robust_conn_cbf}\ \ \forall j\in\mathcal{T}_i(k),
+\label{eq:cbf_constraints}\\
+& \|u_i\|\le u_{\max}.
+\label{eq:input_bound}
+\end{align}
+The relaxation $\delta_i$ preserves feasibility when hard constraints dominate; $\rho$ penalizes relaxation.
+Crucially, connectivity CBFs are enforced only for the \emph{active} neighbor set $\mathcal{T}_i(k)$, so the number of connectivity constraints scales with the pruned topology rather than the dense disk graph.
+
+%------------------------------------------------
+\subsection{Algorithmic pseudocode}
+\begin{algorithm}[t]
+\caption{Concurrent Distributed Pruning + CLF--CBF Control (executed by robot $\ell$)}
+\label{alg:overall}
+\begin{algorithmic}[1]
+\STATE \textbf{Init:} local estimate $A^\ell(0)$, active edge set $\mathcal{E}(0)$, $k\gets 0$
+\WHILE{mission not complete}
+    \STATE Communication from neighbors $\mathcal{N}_\ell(k)$ from~\eqref{eq:disk_graph}--\eqref{eq:neighbors}
+    \STATE Exchange $\{A^p(k)\}_{p\in\mathcal{N}_\ell(k)}$ and local observations
+    \STATE \textbf{Consensus:} update $A^\ell(k{+}1)$ via~\eqref{eq:adj_consensus_1}--\eqref{eq:adj_consensus_2}
+    \STATE Compute $V_\ell(k)$ by~\eqref{eq:local_lyap}; update thresholds $\varepsilon(k),\mu(k)$ by~\eqref{eq:eps_sched}--\eqref{eq:mu_sched}
+    \STATE \textbf{Phase 1 (Proposal):} evaluate incident edges $e=(\ell,j)$; build proposal set $\mathcal{P}_\ell(k)$ using Conditions (i)--(iv)
+    \STATE \textbf{Phase 2 (Negotiation):} exchange proposals; keep only bilaterally approved edges $\mathcal{A}_\ell(k)$
+    \STATE \textbf{Phase 3 (Conflict):} apply deterministic tie-break; output at most one removal $e^\star_\ell(k)$ (or NULL)
+    \STATE Broadcast $e^\star_\ell(k)$; update active edge set $\mathcal{E}(k{+}1)$ with consistent removals
+    \STATE Set active neighbors $\mathcal{T}_\ell(k{+}1)\gets\{j:(\ell,j)\in\mathcal{E}(k{+}1)\}$
+    \FOR{each control step $t$ until next pruning iteration}
+        \STATE Build safety set $\mathcal{S}_\ell(t)$
+        \STATE Form nominal goal control $u_\ell^{\mathrm{nom}}(t)$ from CLF~\eqref{eq:clf_V}
+        \STATE Solve CLF--CBF QP~\eqref{eq:clf_cbf_qp_obj}--\eqref{eq:input_bound} using $\mathcal{S}_\ell(t)$ and $\mathcal{T}_\ell(k{+}1)$
+        \STATE Apply $u_\ell^\star(t)$; broadcast $(x_\ell(t),u_\ell^\star(t))$ to neighbors
+    \ENDFOR
+    \STATE $k\gets k{+}1$
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+\section{Connectivity Preservation Guarantee}
+\label{sec:conn_guarantee}
+
+We establish that the critical communication subgraph stays connected for all time.
+The guarantee is hybrid: (i) continuous-time link feasibility is enforced by connectivity CBF constraints on the maintained edges, and
+(ii) discrete-time pruning preserves graph connectivity with a robustness margin against estimation error.
+
+%------------------------------------------------------------
+\subsection{Continuous-time maintenance of maintained edges via CBF}
+\label{subsec:cbf_link_invariance}
+
+\begin{lemma}[Forward invariance of the connectivity set for a fixed edge set]
+\label{lem:cbf_conn_invariance}
+Fix any undirected edge set $\mathcal{E}_c\subseteq \mathcal{V}\times\mathcal{V}$ and define
+\[
+\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_c)
+\triangleq
+\Big\{x\in(\mathbb{R}^n)^N:\ \|x_i-x_j\|\le R_{\max},\ \forall (i,j)\in\mathcal{E}_c\Big\}.
+\]
+Under the dynamics~\eqref{eq:adv-dif} and Assumption~\ref{ass:A1}--\ref{ass:A4}, suppose that for all $t\ge 0$ and every
+$(i,j)\in\mathcal{E}_c$, the applied controls satisfy the robust connectivity CBF inequality
+\begin{equation}
+2 z_{ij}^\top (u_i-u_j)\ \le\ \alpha_c\!\big(h^{\mathrm{conn}}_{ij}(x)\big)\ -\ 2L_f r_{ij}^2 - 4\bar d\, r_{ij},
+\label{eq:robust_conn_cbf_recall}
+\end{equation}
+where $z_{ij}=x_i-x_j$, $r_{ij}=\|z_{ij}\|$, and $h^{\mathrm{conn}}_{ij}(x)=R_{\max}^2-r_{ij}^2$.
+Then $\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_c)$ is forward invariant: if
+$x(0)\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_c)$, then $x(t)\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_c)$ for all $t\ge 0$.
+\end{lemma}
+
+%------------------------------------------------------------
+\subsection{Hybrid connectivity preservation under pruning updates}
+\label{subsec:hybrid_connectivity}
+
+Let $t_k$ denote the $k$-th update time ($t_{k+1}-t_k=T_d$). The maintained topology used by the control layer on
+$[t_k,t_{k+1})$ is $\mathcal{G}_{\mathrm{topo}}(k)=(\mathcal{V},\mathcal{E}_{\mathrm{topo}}(k))$.
+Define the hybrid ``connectivity-feasible'' set
+\begin{equation}
+\mathcal{H}
+\triangleq
+\Big\{(x,\mathcal{E}) : (\mathcal{V},\mathcal{E})\ \text{is connected and}\ x\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}) \Big\}.
+\label{eq:hybrid_set_H}
+\end{equation}
+
+% --- Keep ONLY this one lemma (delete the duplicate) ---
+\begin{lemma}[Algebraic-connectivity prediction error bound]
+\label{lem:lambda2_prediction_bound}
+Fix iteration $k$ and an edge $e$ considered for removal. Let $\mathcal{L}^{\mathrm{true}}(k)$ be the true Laplacian of
+$\mathcal{G}_{\mathrm{topo}}(k)$, and let robot $\ell$ form an estimate $\mathcal{L}^{\ell}(k)$ from its local adjacency estimate
+$A^\ell(k)$. Let $\Delta\mathcal{L}_{e}$ denote the Laplacian update associated with removing $e$. Define
+\begin{align}
+\lambda_{2,\ell}^{\mathrm{pred}}(e,k)
+&\triangleq
+\lambda_2\!\Big(\mathcal{L}^{\ell}(k)-\Delta\mathcal{L}_{e}\Big),
+\label{eq:lambda2_pred_def}\\
+\lambda_{2}^{\mathrm{act}}(e,k)
+&\triangleq
+\lambda_2\!\Big(\mathcal{L}^{\mathrm{true}}(k)-\Delta\mathcal{L}_{e}\Big).
+\label{eq:lambda2_act_def}
+\end{align}
+Then
+\begin{equation}
+\lambda_{2}^{\mathrm{act}}(e,k)
+\ \ge\
+\lambda_{2,\ell}^{\mathrm{pred}}(e,k)\ -\ \delta_\ell(k).
+\label{eq:lambda2_pred_bound}
+\end{equation}
+\begin{equation}
+\delta_\ell(k)\triangleq
+\big\|\mathcal{L}^{\ell}(k)-\mathcal{L}^{\mathrm{true}}(k)\big\|_2 .
+\label{eq:delta_def}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Apply Weyl's inequality to the symmetric matrices
+$M_1=\mathcal{L}^{\mathrm{true}}(k)-\Delta\mathcal{L}_{e}$ and
+$M_2=\mathcal{L}^{\ell}(k)-\Delta\mathcal{L}_{e}$:
+\[
+\big|\lambda_2(M_2)-\lambda_2(M_1)\big|
+\le
+\|M_2-M_1\|_2
+=
+\big\|\mathcal{L}^{\ell}(k)-\mathcal{L}^{\mathrm{true}}(k)\big\|_2.
+\]
+Rearranging yields~\eqref{eq:lambda2_pred_bound}.
+\end{proof}
+
+\begin{theorem}[Hybrid invariance and end-to-end connectivity of the maintained topology]
+\label{thm:global_connectivity}
+Let $\lambda_{\min}>0$ and let $\mathcal{H}$ be defined in~\eqref{eq:hybrid_set_H}.
+Assume $(x(t_0),\mathcal{E}_{\mathrm{topo}}(0))\in\mathcal{H}$ and that the initialization check satisfies
+$\lambda_2(\mathcal{L}_0)>\lambda_{\min}$, where $\mathcal{L}_0$ is the Laplacian of $\mathcal{G}_{\mathrm{topo}}(0)$.
+
+For each update index $k$, suppose:
+
+\begin{enumerate}
+\item (\emph{CBF enforcement on maintained edges})
+For all $t\in[t_k,t_{k+1})$, the applied controls satisfy~\eqref{eq:robust_conn_cbf_recall} for every
+$(i,j)\in\mathcal{E}_{\mathrm{topo}}(k)$.
+
+\item (\emph{Distributed three-phase pruning with robust spectral check})
+At $t_{k+1}$, the topology update is the output of the three-phase protocol:
+\begin{enumerate}
+\item \textbf{Phase 1 (Proposal).} Each robot $\ell$ proposes an incident edge $e=(\ell,j)$ for removal only if its \emph{local}
+prediction satisfies
+\begin{equation}
+\lambda_{2,\ell}^{\mathrm{pred}}(e,k)
+=
+\lambda_2\!\big(\mathcal{L}^{\ell}(k)-\Delta\mathcal{L}_e\big)
+\ \ge\ \lambda_{\min}+\mu(k),
+\label{eq:phase1_conn_check}
+\end{equation}
+(where $\mathcal{L}^{\ell}(k)$ is built from $\ell$'s local adjacency estimate $A^{\ell}(k)$),
+together with the other local safety checks (redundancy and Lyapunov constraints).
+
+\item \textbf{Phase 2 (Negotiation).} An edge $e=(i,j)$ is \emph{approved} only if both endpoints propose it, i.e.,
+$e\in\mathcal{P}_i(k)\cap\mathcal{P}_j(k)$.
+
+\item \textbf{Phase 3 (Conflict resolution).} A deterministic tie-breaking rule selects at most one approved edge
+$e^*(k)$ for removal; otherwise no edge is removed. Hence the update satisfies
+\end{enumerate}
+
+\begin{equation}
+\mathcal{E}_{\mathrm{topo}}(k{+}1)
+=
+\begin{cases}
+\mathcal{E}_{\mathrm{topo}}(k), & e^*(k)=\mathrm{NULL},\\
+\mathcal{E}_{\mathrm{topo}}(k)\setminus\{e^*(k)\}, & e^*(k)\in\mathcal{E}_{\mathrm{topo}}(k).
+\end{cases}
+\label{eq:topo_update_cases}
+\end{equation}
+
+\item (\emph{Robustness margin dominates prediction error})
+Let $\mathcal{L}^{\mathrm{true}}(k)$ denote the true Laplacian of $\mathcal{G}_{\mathrm{topo}}(k)$, and define
+\[
+\delta(k)\triangleq \max_{\ell\in\mathcal{V}}\big\|\mathcal{L}^{\ell}(k)-\mathcal{L}^{\mathrm{true}}(k)\big\|_2 .
+\]
+Assume the margin schedule satisfies
+\begin{equation}
+\mu(k)>\delta(k)\qquad \forall k .
+\label{eq:mu_gt_delta}
+\end{equation}
+\end{enumerate}
+
+Then $\mathcal{H}$ is forward invariant. In particular, for all $k$ the maintained topology remains connected and maintained
+links never break:
+\begin{equation}
+\begin{aligned}
+&\mathcal{G}_{\mathrm{topo}}(k)\ \text{is connected},\\
+&x(t)\in\mathcal{C}_{\mathrm{conn}}\!\big(\mathcal{E}_{\mathrm{topo}}(k)\big),
+\quad \forall t\in[t_k,t_{k+1}).
+\end{aligned}
+\label{eq:conn_and_feas}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $\mathcal{E}_k\triangleq\mathcal{E}_{\mathrm{topo}}(k)$ and let $\mathcal{L}_k$ be the true Laplacian of
+$\mathcal{G}_{\mathrm{topo}}(k)=(\mathcal{V},\mathcal{E}_k)$ at time $t_k$.
+We prove invariance of $\mathcal{H}$ across (i) flows and (ii) pruning jumps.
+
+\paragraph{Feasibility on $[t_k,t_{k+1})$.}
+Assume $(x(t_k),\mathcal{E}_k)\in\mathcal{H}$.
+Since $\mathcal{E}_k$ is constant on $[t_k,t_{k+1})$ and item (1) holds,
+Lemma~\ref{lem:cbf_conn_invariance} implies
+\begin{equation}
+x(t_k)\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_k)\ \Longrightarrow\
+x(t)\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_k),\ \forall t\in[t_k,t_{k+1}),
+\label{eq:flow_feas}
+\end{equation}
+so feasibility is preserved during flows. Graph connectivity of $(\mathcal{V},\mathcal{E}_k)$ is unchanged during the interval.
+
+%-------------------------
+\paragraph{Connectivity at $t_{k+1}$}
+We show that
+\begin{equation}
+\lambda_2(\mathcal{L}_k)\ \ge\ \lambda_{\min}\ >0 \qquad \forall k\ge 0,
+\label{eq:lambda2_invariant}
+\end{equation}
+which implies $\mathcal{G}_{\mathrm{topo}}(k)$ is connected for all $k$.
+
+\emph{Base case ($k=0$).}
+By the initialization check, $\lambda_2(\mathcal{L}_0)>\lambda_{\min}$, as the robots are starting as a connected graph, hence \eqref{eq:lambda2_invariant} holds at $k=0$.
+
+\emph{Inductive hypothesis.}
+Assume \eqref{eq:lambda2_invariant} holds for all indices $0\le j\le k$.
+
+\emph{Inductive step (prove for $k+1$).}
+By~\eqref{eq:topo_update_cases}, there are two cases:
+
+\smallskip
+\noindent\underline{Case 1: No edge removed.}
+Then $\mathcal{E}_{k+1}=\mathcal{E}_k$ and $\mathcal{L}_{k+1}=\mathcal{L}_k$, so
+\[
+\lambda_2(\mathcal{L}_{k+1})=\lambda_2(\mathcal{L}_k)\ge \lambda_{\min}.
+\]
+
+\smallskip
+\noindent\underline{Case 2: One edge $e^*(k)=(i^*,j^*)$ removed.}
+Then $\mathcal{E}_{k+1}=\mathcal{E}_k\setminus\{e^*(k)\}$ and
+\[
+\lambda_2(\mathcal{L}_{k+1})=\lambda_2^{\mathrm{act}}(e^*(k),k).
+\]
+Because $e^*(k)$ is selected from the approved set, both endpoints proposed it (Phase 2),
+hence by Phase 1 each endpoint $\ell\in\{i^*,j^*\}$ verified~\eqref{eq:phase1_conn_check}:
+\[
+\lambda_{2,\ell}^{\mathrm{pred}}(e^*(k),k)\ \ge\ \lambda_{\min}+\mu(k).
+\]
+Let $\ell^\star\in\{i^*,j^*\}$ attain the minimum predicted value, i.e.,
+$\lambda_{2,\ell^\star}^{\mathrm{pred}}(e^*(k),k)=\min_{\ell\in\{i^*,j^*\}}\lambda_{2,\ell}^{\mathrm{pred}}(e^*(k),k)$.
+Then
+\begin{equation}
+\lambda_{2,\ell^\star}^{\mathrm{pred}}(e^*(k),k)\ \ge\ \lambda_{\min}+\mu(k).
+\label{eq:min_pred}
+\end{equation}
+Applying Lemma~\ref{lem:lambda2_prediction_bound} with $\ell=\ell^\star$ yields
+\begin{align}
+\lambda_2(\mathcal{L}_{k+1})
+&=\lambda_{2}^{\mathrm{act}}(e^*(k),k) \nonumber\\
+&\ge
+\lambda_{2,\ell^\star}^{\mathrm{pred}}(e^*(k),k)
+-\big\|\mathcal{L}^{\ell^\star}(k)-\mathcal{L}^{\mathrm{true}}(k)\big\|_2
+\nonumber\\
+&\ge
+\lambda_{2,\ell^\star}^{\mathrm{pred}}(e^*(k),k)-\delta(k).
+\label{eq:lambda2_chain}
+\end{align}
+Combining with~\eqref{eq:min_pred} and~\eqref{eq:mu_gt_delta} gives
+\[
+\lambda_2(\mathcal{L}_{k+1})
+\ \ge\ \lambda_{\min}+\mu(k)-\delta(k)\ >\ \lambda_{\min}.
+\]
+Thus \eqref{eq:lambda2_invariant} holds at $k+1$.
+
+\smallskip
+Therefore $\lambda_2(\mathcal{L}_k)>0$ for all $k$,
+so $\mathcal{G}_{\mathrm{topo}}(k)$ is connected for all $k$.
+
+%-------------------------
+\paragraph{Feasibility at $t_{k+1}$.}
+Let $x^- = x(t_{k+1}^-)$ and note from~\eqref{eq:flow_feas} that $x^-\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_k)$.
+At the jump, $x^+=x^-$ and $\mathcal{E}_{k+1}\subseteq\mathcal{E}_k$, hence
+\[
+x^+=x^-\in \mathcal{C}_{\mathrm{conn}}(\mathcal{E}_{k+1}),
+\]
+i.e., feasibility is preserved across the pruning jump.
+
+\paragraph{Conclusion.}
+We have shown feasibility during flows, connectivity at each steps, and feasibility across all the steps; hence
+$(x(t),\mathcal{E}_{\mathrm{topo}}(t))\in\mathcal{H}$ for all $t\ge t_0$, i.e., $\mathcal{H}$ is forward invariant.
+\end{proof}
+
+\begin{remark}
+The implementation enforces a deterministic tie-breaking so that pruning produces either
+$e^*(k)=\mathrm{NULL}$ or a single edge $e^*(k)\in\mathcal{E}_{\mathrm{topo}}(k)$, which is exactly the update~\eqref{eq:topo_update_cases}.
+This assumption is used only to simplify the inductive step.
+\end{remark}
+
+\section{Experiments}
+\label{sec:experiments}
+
+\begin{table}[t]
+\centering
+\caption{Simulation scenarios and stress factors used in evaluation.}
+\label{tab:scenarios}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabular}{ccccp{0.36\columnwidth}}
+\toprule
+\textbf{Scenario} & \textbf{$N$} & \textbf{$R_{\max}$ (m)} & \textbf{$\Delta t$ (s)} & \textbf{Purpose} \\
+\midrule
+A & 10 & 3.0 & 0.05 & Baseline \\
+B & 10 & 3.5 & 0.10 & Temporal discretization \\
+C & 10 & 2.0 & 0.03 & Sparse-connectivity stress\\
+D & 20 & 3.0 & 0.05 & Scalability \\
+E & 12 & 2.2 & 0.08 & Extreme stress test\\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+\subsection{Simulation Setup}
+\label{subsec:sim_setup}
+We evaluate the proposed \emph{Concurrent Pruning} controller in a 2D underwater environment with spatially-varying flow fields.
+The experimental setup consists of a $10 \times 10$\,m$^2$ workspace where a fleet of $n{=}10$ robots (Scenario A baseline) 
+must navigate from randomly initialized positions to a goal region at $(8.0, 5.0)$\,m while maintaining network connectivity 
+under communication radius constraints $R_{\mathrm{comm}}{=}3.0$\,m.
+
+Robots evolve under discrete-time dynamics with time step $\Delta t{=}0.05$\,s:
+\begin{equation}
+x_i[k{+}1]
+=
+x_i[k]
++
+\Delta t\Big(f_{\mathrm{flow}}(x_i[k],k\Delta t) + u_i[k] + d_i[k]\Big),
+\label{eq:sim_euler}
+\end{equation}
+where $f_{\mathrm{flow}}(\cdot)$ is the ambient flow field (magnitude $\approx 0.3$\,m/s, spatially varying as shown in Fig.~\ref{fig:overview_pruning}),
+$u_i[k]$ is the hybrid CLF--CBF control input (bounded by $\|u_i\|{\leq}2.0$\,m/s), and $d_i[k]$ represents bounded measurement 
+and actuation noise. Safety constraints enforce minimum inter-robot separation $d_{\mathrm{safe}}{=}0.3$\,m.
+
+The initial topology is the full communication graph, typically yielding 
+$|E_0|{\approx} \frac{n(n{-}1)}{2}$ edges for densely distributed robots. Through concurrent consensus and pruning, 
+the topology converges to a sparse near-tree structure with $|E_{\mathrm{final}}|{\approx}n{-}1$ edges while maintaining 
+algebraic connectivity $\lambda_2(\mathcal{L}){>}0.2$ throughout. Each simulation runs for 25 seconds, repeated over 10 trials per scenario with different random seeds.
+
+Table~\ref{tab:scenarios} summarizes five test scenarios with varying parameters to validate robustness: 
+Scenario A (baseline), B (large time step $\Delta t{=}0.2$\,s), C (tight communication radius $R_{\mathrm{comm}}{=}2.0$\,m), 
+D (high robot count $n{=}20$), and E (combined extreme parameters).
+
+\begin{figure}[t]
+\centering
+\begin{minipage}[b]{0.48\columnwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/figure1_acc2026.png}
+\caption{Illustrative snapshot showing maintained topology: the fleet advances toward the goal while the pruning layer maintains a sparse, connectivity-feasible subgraph.}
+\label{fig:overview_pruning}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\columnwidth}
+\centering
+\includegraphics[width=\textwidth]{figures/plot_1_trajectories.png}
+\caption{Robot trajectories (Scenario A) in the flow field with topology evolving from initially dense (dashed) to sparse near-tree (solid).}
+\label{fig:traj_scnA}
+\end{minipage}
+\end{figure}
+
+\paragraph{Controller execution.}
+At every time step, each robot solves a local QP that (i) drives to a common goal $x_g$ via a CLF constraint and
+(ii) enforces safety and link-maintenance via CBF constraints (Fig.~\ref{fig:overview_pruning}):
+\begin{itemize}
+  \item \textbf{CLF (goal reaching):} a Lyapunov function $V_i(x_i)=\|x_i-x_g\|^2$ is used to generate a stabilizing descent constraint
+  (implemented as a soft constraint in the QP).
+  \item \textbf{CBFs (safety + connectivity):} collision-avoidance CBFs enforce inter-robot separation, and connectivity CBFs enforce
+  $\|x_i-x_j\|\le R_{\max}$ on the \emph{maintained} edge set $\mathcal{E}_{\mathrm{topo}}(k)$ between pruning updates.
+\end{itemize}
+Pruning/communication updates occur at times $\{t_k\}$ (Section~\ref{subsec:hybrid_connectivity}), where the maintained graph
+$\mathcal{G}_{\mathrm{topo}}(k)=(\mathcal{V},\mathcal{E}_{\mathrm{topo}}(k))$ may remove at most one edge per update via bilateral approval.
+
+\paragraph{Baselines.}
+We compare four methods, all using the same CLF--CBF motion controller but different maintained topologies:
+(i)~\textbf{Concurrent Pruning (ours)},
+(ii)~\textbf{Adjacency Consensus} (sequential pruning),
+(iii)~\textbf{Full Graph} where $\mathcal{E}_{\mathrm{topo}}(k)$ is the instantaneous graph (no edges are explicitly pruned),
+and (iv)~\textbf{Centralized MST} (global MST each update).
+
+\paragraph{Success criterion and metrics.}
+A trial is deemed successful if: (i) the maintained-topology connectivity satisfies $\lambda_2(t)\ge \lambda_{\min}=0.2$ for all $t$ and
+(ii) the final goal error is at most $0.5$\,m. We report: (a) success rate, (b) edge reduction relative to the initial topology,
+(c) $\min_t \lambda_2(t)$, (d) cumulative control effort.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Topology sparsification and connectivity safety}
+Fig.~\ref{fig:edge_evolution} shows the evolution of the number of maintained edges. The proposed Concurrent Pruning rapidly removes
+redundant links and stabilizes to a sparse, low-maintenance subgraph across all scenarios. In contrast, the Full-Graph baseline retains
+substantially more edges, while the centralized MST oracle yields the sparsest topology.
+The second plot shows the performance of the concurrent pruning method over the five different scenarios.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/plot_2_edge_evolution.png}
+\caption{Edge-count evolution of the maintained topology $\mathcal{G}_{\mathrm{topo}}(t)$ accross different method in same scenario and across scenarios (A--E) with concurrent pruning method.}
+\label{fig:edge_evolution}
+\end{figure}
+\FloatBarrier
+
+Fig.~\ref{fig:lambda2_time} reports the corresponding algebraic connectivity $\lambda_2(t)$ (dashed line: safety threshold).
+The Full-Graph baseline maintains the largest connectivity margin but with the highest edge count, whereas the MST operates closest
+to the threshold, which explains its reduced robustness under extreme stress. Our concurrent pruning method gets to the near MST edges in a smaller timestep than the sequential method which takes way more time to reduce its edge counts while still maintaining comparable algebraic connectivity to it across all scenarios.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/plot_3_lambda2_analysis.png}
+\caption{Algebraic connectivity $\lambda_2(t)$ of the maintained topology $\mathcal{G}_{\mathrm{topo}}(t)$ across scenarios (A--E)
+(dashed: $\lambda_{\min}=0.2$).}
+\label{fig:lambda2_time}
+\end{figure}
+\FloatBarrier
+
+To compactly compare safety across scenarios, Fig.~\ref{fig:min_lambda2_scn} plots the average minimum $\lambda_2$ per scenario.
+Concurrent Pruning maintains a conservative margin above $\lambda_{\min}$ across all scenarios, while MST remains consistently close to the
+threshold and is therefore more prone to failures when perturbations are severe.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/plot_6_min_lambda2_by_scenario.png}
+\caption{Connectivity safety across scenarios: average minimum algebraic connectivity (dashed: $\lambda_{\min}=0.2$).}
+\label{fig:min_lambda2_scn}
+\end{figure}
+\FloatBarrier
+
+Fig.~\ref{fig:control_effort} reports cumulative control effort. Across scenarios, sparsification does not introduce a prohibitive effort
+increase relative to dense baselines, indicating that edge reduction primarily lowers communication burden rather than driving
+large control applications.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{figures/plot_4_control_effort.png}
+\caption{Cumulative control effort over time. Each panel corresponds to one scenario (A--E).}
+\label{fig:control_effort}
+\end{figure}
+\FloatBarrier
+
+\subsection{Success rates, effort, and runtime}
+
+Aggregate statistics in Table~\ref{tab:summary_stats} quantify the overall trade-off: Concurrent Pruning achieves high reliability (98\%)
+while removing $66\%$ of edges on average, and is substantially faster than the Adjacency-Consensus baseline. The Full-Graph baseline
+achieves a larger connectivity margin but keeps significantly more edges, and the centralized MST achieves the highest sparsity. (Reported $\min_t\lambda_2$ averages include both successful and failed trials.)
+
+\begin{table}[H]
+\centering
+\caption{Aggregate performance across all scenarios (10 Monte-Carlo trials per scenario).}
+\label{tab:summary_stats}
+\footnotesize
+\setlength{\tabcolsep}{2.4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & Success (\%) & Edge red.\ (\%) & $\min_t \lambda_2$ & Runtime (s) \\
+\midrule
+Concurrent Pruning & 97.83 & $66.04\pm 27.17$ & $0.7276\pm 1.1044$ & $3.73\pm 4.95$ \\
+Adjacency Consensus & 98.21 & $67.20\pm 15.47$ & $0.8297\pm 0.9205$ & $12.91\pm 17.68$ \\
+Full Graph & 98.78 & $25.48\pm 20.18$ & $2.0786\pm 1.1935$ & $1.33\pm 0.77$ \\
+Centralized MST & 92.02 & $80.57\pm 4.24$ & $0.1500\pm 0.0727$ & $1.00\pm 0.62$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+\FloatBarrier
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presented a fully distributed framework that enables underwater robot fleets to preserve network connectivity while minimizing control effort in flow-dominated environments. By combining distributed adjacency consensus with concurrent edge pruning and integrating it into a CLF--CBF control architecture, the proposed approach achieves sparse, tree-like communication topologies that converge toward minimum spanning structures over time. The concurrent pruning protocol, which uses adaptive thresholds and bilateral negotiation, successfully eliminates redundant communication links while maintaining algebraic connectivity above safety margins. Through comprehensive simulations across five stress scenarios with varying communication radii, team sizes, and temporal discretizations, we demonstrated that the method achieves a 98\% success rate, reduces edges by 66\% on average, and operates 3.5 times faster than sequential pruning alternatives while maintaining comparable connectivity safety. The hybrid invariance proof formally guarantees end-to-end connectivity preservation under bounded disturbances and spatially varying flows. These results validate that distributed teams can rely on minimal information exchange—only neighbor lists and local estimates—to coordinate efficiently in bandwidth-limited and localization-denied underwater environments. Future work will extend the framework to three-dimensional deployments, incorporate communication delays and packet loss, explore multi-target coordination scenarios, and validate the approach through field experiments with autonomous underwater vehicles operating in real ocean currents.
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography}
+
+\end{document}

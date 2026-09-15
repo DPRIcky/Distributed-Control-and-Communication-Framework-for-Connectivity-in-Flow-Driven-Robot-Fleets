@@ -1,0 +1,24 @@
+\begin{table}[ht]
+\centering
+\caption{δ-BFS Protocol: Rate Cap Sweep Summary (N=10, N=20, $T_\text{prune}$=30\,s, 3 seeds)}
+\label{tab:rate_cap_sweep}
+\begin{tabular}{llccrrrr}
+\toprule
+$N$ & Cap (bps) & Description & Runs & Success & $t_\text{tree}$ (s) & Delay p95 (ms) & rx (B/s) \\
+\midrule
+10 & $\infty$ & No limit & 10 & 1.00 & 2.9±0.2 & 0 & 185 \\
+10 & 250 & High cap & 10 & 1.00 & 4.3±0.1 & 2135±359 & 169 \\
+10 & 48 & 2× above breakpoint & 3 & 1.00 & 11.5±0.7 & 12483±1336 & 38 \\
+10 & 30 & Above breakpoint & 3 & 1.00 & 18.0±2.0 & 15094±2288 & 18 \\
+10 & 18 & Near breakpoint (partial) & 3 & 0.67 & 27.8±1.4 & 20700±317 & 10 \\
+10 & 12 & Below breakpoint (failure) & 3 & 0.00 & — & 22939±664 & 3 \\
+\midrule
+20 & $\infty$ & No limit & 3 & 1.00 & 3.0±0.1 & 0 & 546 \\
+20 & 250 & High cap & 3 & 1.00 & 5.0±0.1 & 4717±274 & 405 \\
+20 & 48 & 2× above breakpoint & 3 & 1.00 & 15.0±0.5 & 15261±1891 & 67 \\
+20 & 30 & Above breakpoint & 3 & 1.00 & 20.6±0.8 & 19439±679 & 38 \\
+20 & 24 & Near breakpoint (first success) & 3 & 1.00 & 27.2±0.9 & 20317±584 & 27 \\
+20 & 18 & Below breakpoint (failure) & 3 & 0.00 & — & 20933±591 & 13 \\
+\bottomrule
+\end{tabular}
+\end{table}

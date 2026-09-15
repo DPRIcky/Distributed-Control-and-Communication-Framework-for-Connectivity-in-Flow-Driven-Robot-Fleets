@@ -1,0 +1,75 @@
+{
+  "parameters": {
+    "N": 10,
+    "root": 0,
+    "R_comm": 6.0,
+    "T_bcast": 1.0,
+    "jitter": 0.2,
+    "p_drop": 0.1,
+    "delay_max": 0.5,
+    "T_prune": 20.0,
+    "T_stable": 5.0,
+    "sigma_v": 0.05,
+    "seed": 42,
+    "viz_interval": 0.35,
+    "tag": null
+  },
+  "results": {
+    "duration_s": 5.183,
+    "pruned_edges": 9,
+    "connected": true,
+    "is_tree": true,
+    "reachable_from_root": 10,
+    "tx_msgs": 353,
+    "rx_msgs": 320,
+    "dropped_msgs": 33,
+    "tx_bytes": 2118,
+    "rx_bytes": 1920,
+    "tx_Bps": 408.6,
+    "rx_Bps": 370.4,
+    "observed_drop_rate": 0.0935
+  },
+  "node_state": {
+    "0": {
+      "delta": 0.0,
+      "parent": null
+    },
+    "1": {
+      "delta": 1,
+      "parent": 0
+    },
+    "2": {
+      "delta": 1,
+      "parent": 0
+    },
+    "3": {
+      "delta": 1,
+      "parent": 0
+    },
+    "4": {
+      "delta": 1,
+      "parent": 0
+    },
+    "5": {
+      "delta": 1,
+      "parent": 0
+    },
+    "6": {
+      "delta": 1,
+      "parent": 0
+    },
+    "7": {
+      "delta": 1,
+      "parent": 0
+    },
+    "8": {
+      "delta": 1,
+      "parent": 0
+    },
+    "9": {
+      "delta": 1,
+      "parent": 0
+    }
+  },
+  "timestamp": "2026-02-27T17:54:10.988234"
+}

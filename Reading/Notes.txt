@@ -1,0 +1,12 @@
+07/09/2025:
+
+Connectivity:
+
+1. Generate how to make a minimum spanning tree
+2. How do they generate a tree
+3. decentralized part of generating minimum spanning tree
+
+Barrier Function:
+
+1. Build a simulation to try distributed obstacle. make a distributed obstacle.
+2. Make the barrier function that how far it can go and manipulate the velocity.

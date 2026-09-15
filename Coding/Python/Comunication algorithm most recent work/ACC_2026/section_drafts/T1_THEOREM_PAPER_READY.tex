@@ -1,0 +1,140 @@
+% Paper-ready Theorem 1 block (robust invariance)
+% Notes:
+%  - Uses label thm:robust-invariance to match existing refs.
+%  - Keeps safety index set time-invariant for strict forward-invariance;
+%    a short implementation remark explains using neighbors online.
+
+\begin{theorem}[Robust invariance of safety and enforced connectivity]
+\label{thm:robust-invariance}
+Consider the control-affine multi-robot model \eqref{eq:adv-dif} operating over the communication model \eqref{eq:disk_graph}--\eqref{eq:neighbors}. Let Assumptions~\ref{ass:A1}--\ref{ass:A3} hold, and suppose the flow field satisfies the spatial smoothness bound
+\(
+\|f_{\text{flow}}(x_i,t)-f_{\text{flow}}(x_j,t)\|\le L_f\|x_i-x_j\|
+\)
+for all $x_i,x_j$ and all $t\ge 0$, and disturbances satisfy $\|d_i(t)\|\le \bar d$.
+For any ordered pair $(i,j)$, define the relative position and distance
+\[
+z_{ij} \triangleq x_i-x_j,\qquad r_{ij}\triangleq \|z_{ij}\|.
+\]
+
+Fix two edge index sets:
+(i) a \emph{safety-enforced} set $\mathcal{E}_s\subseteq \mathcal{V}\times\mathcal{V}$ (e.g., all unordered pairs), and
+(ii) a \emph{connectivity-enforced} set $\mathcal{E}_c \subseteq \mathcal{E}_0$ (e.g., the selected critical edges/spanning structure used by the pruning protocol).
+Define the pairwise barrier functions
+\begin{align}
+h^{\mathrm{safe}}_{ij}(x) &\triangleq r_{ij}^2 - d_{\min}^2,
+\label{eq:h_safe}\\
+h^{\mathrm{conn}}_{ij}(x) &\triangleq R_{\max}^2 - r_{ij}^2.
+\label{eq:h_conn}
+\end{align}
+Let $\alpha_s,\alpha_c:\mathbb{R}\to\mathbb{R}$ be extended class-$\mathcal{K}$ functions.
+
+Suppose that for all $t\ge 0$ the applied controls satisfy $\|u_i(t)\|\le u_{\max}$ and, for every $(i,j)\in \mathcal{E}_s$, the \emph{robust safety CBF inequality}
+\begin{equation}
+\boxed{
+2 z_{ij}^\top (u_i-u_j)\ \ge\ 2L_f r_{ij}^2 + 4\bar d\, r_{ij}\ -\ \alpha_s\!\big(h^{\mathrm{safe}}_{ij}(x)\big)
+}
+\label{eq:robust_safe_cbf}
+\end{equation}
+and for every $(i,j)\in \mathcal{E}_c$, the \emph{robust connectivity CBF inequality}
+\begin{equation}
+\boxed{
+2 z_{ij}^\top (u_i-u_j)\ \le\ \alpha_c\!\big(h^{\mathrm{conn}}_{ij}(x)\big)\ -\ 2L_f r_{ij}^2 - 4\bar d\, r_{ij}.
+}
+\label{eq:robust_conn_cbf}
+\end{equation}
+
+Then the set
+\begin{equation}
+\mathcal{S}\ \triangleq\
+\Big(\bigcap_{(i,j)\in \mathcal{E}_s} \{x:\ h^{\mathrm{safe}}_{ij}(x)\ge 0\}\Big)
+\ \cap\
+\Big(\bigcap_{(i,j)\in \mathcal{E}_c} \{x:\ h^{\mathrm{conn}}_{ij}(x)\ge 0\}\Big)
+\label{eq:overall_safe_set}
+\end{equation}
+is forward invariant for the closed-loop system. In particular, if initially
+$h^{\mathrm{safe}}_{ij}(x(0))\ge 0$ for all $(i,j)\in\mathcal{E}_s$ and
+$h^{\mathrm{conn}}_{ij}(x(0))\ge 0$ for all $(i,j)\in\mathcal{E}_c$,
+then for all $t\ge 0$,
+\begin{align}
+\|x_i(t)-x_j(t)\| &\ge d_{\min}, &&\forall (i,j)\in \mathcal{E}_s,
+\label{eq:safety_invariance}\\
+\|x_i(t)-x_j(t)\| &\le R_{\max}, &&\forall (i,j)\in \mathcal{E}_c.
+\label{eq:conn_invariance}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+Fix any pair $(i,j)$. For compactness write $z \triangleq z_{ij}=x_i-x_j$, $r\triangleq \|z\|$, and denote
+\[
+\Delta f_{ij}(t)\triangleq f_{\text{flow}}(x_i,t)-f_{\text{flow}}(x_j,t),\qquad
+\Delta d_{ij}(t)\triangleq d_i(t)-d_j(t).
+\]
+From \eqref{eq:adv-dif}, the relative dynamics are
+\begin{equation}
+\dot z = \Delta f_{ij}(t) + (u_i-u_j) + \Delta d_{ij}(t).
+\label{eq:relative_dyn_proof}
+\end{equation}
+By Lipschitz smoothness of $f_{\text{flow}}$ and the disturbance bound,
+\begin{equation}
+\|\Delta f_{ij}(t)\|\le L_f r,\qquad
+\|\Delta d_{ij}(t)\|\le \|d_i(t)\|+\|d_j(t)\|\le 2\bar d.
+\label{eq:delta_bounds}
+\end{equation}
+
+\paragraph{Safety}
+Consider $h^{\mathrm{safe}}(x)=r^2-d_{\min}^2=z^\top z-d_{\min}^2$. Differentiating along \eqref{eq:relative_dyn_proof} yields
+\begin{equation}
+\dot h^{\mathrm{safe}}
+= 2 z^\top \dot z
+= 2 z^\top \Delta f_{ij} + 2 z^\top (u_i-u_j) + 2 z^\top \Delta d_{ij}.
+\label{eq:h_safe_dot}
+\end{equation}
+Using Cauchy--Schwarz and \eqref{eq:delta_bounds},
+\begin{align}
+2 z^\top \Delta f_{ij}
+&\ge -2\|z\|\,\|\Delta f_{ij}\|\ge -2L_f r^2,
+\label{eq:flow_bound_safe}\\
+2 z^\top \Delta d_{ij}
+&\ge -2\|z\|\,\|\Delta d_{ij}\|\ge -4\bar d\, r.
+\label{eq:dist_bound_safe}
+\end{align}
+Substituting \eqref{eq:flow_bound_safe}--\eqref{eq:dist_bound_safe} into \eqref{eq:h_safe_dot} gives
+\begin{equation}
+\dot h^{\mathrm{safe}}
+\ \ge\
+2 z^\top (u_i-u_j)\ -\ 2L_f r^2\ -\ 4\bar d\, r.
+\label{eq:h_safe_lower}
+\end{equation}
+If the control satisfies \eqref{eq:robust_safe_cbf}, then \eqref{eq:h_safe_lower} implies
+$\dot h^{\mathrm{safe}} \ge -\alpha_s\big(h^{\mathrm{safe}}\big)$.
+By the standard control-barrier-function invariance argument, the superlevel set
+$\{x:\ h^{\mathrm{safe}}(x)\ge 0\}$ is forward invariant.
+
+\paragraph{Connectivity}
+Consider $h^{\mathrm{conn}}(x)=R_{\max}^2-r^2$. Differentiating and using \eqref{eq:relative_dyn_proof} gives
+\begin{equation}
+\dot h^{\mathrm{conn}}
+= -2 z^\top \dot z
+= -2 z^\top \Delta f_{ij} - 2 z^\top (u_i-u_j) - 2 z^\top \Delta d_{ij}.
+\label{eq:h_conn_dot}
+\end{equation}
+Again by Cauchy--Schwarz and \eqref{eq:delta_bounds},
+$-2 z^\top \Delta f_{ij}\ge -2L_f r^2$ and $-2 z^\top \Delta d_{ij}\ge -4\bar d\,r$.
+Substituting yields
+\begin{equation}
+\dot h^{\mathrm{conn}}
+\ \ge\
+-2 z^\top (u_i-u_j)\ -\ 2L_f r^2\ -\ 4\bar d\, r.
+\label{eq:h_conn_lower}
+\end{equation}
+If the control satisfies \eqref{eq:robust_conn_cbf}, then \eqref{eq:h_conn_lower} implies
+$\dot h^{\mathrm{conn}} \ge -\alpha_c\big(h^{\mathrm{conn}}\big)$.
+Therefore $\{x:\ h^{\mathrm{conn}}(x)\ge 0\}$ is forward invariant.
+
+\paragraph{Intersection}
+Since the arguments hold for each indexed constraint whose robust inequality is enforced, the intersection set \eqref{eq:overall_safe_set} is forward invariant.
+\end{proof}
+
+% Optional implementation remark:
+% In practice we set \mathcal{E}_s(t)=\mathcal{E}_t and enforce safety only for in-range neighbors.
+% Under Assumption~\ref{ass:A2}, this activates before any potential collision (d_{\min}<R_{\max}-\varepsilon).

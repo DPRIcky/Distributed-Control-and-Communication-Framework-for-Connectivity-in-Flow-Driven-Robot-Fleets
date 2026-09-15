@@ -1,0 +1,30 @@
+% Reviewer-ready Problem Formulation / Problem Statement (standalone)
+% Intended usage: \input{section_drafts/problem_formulation_reviewer_ready}
+
+\subsection{Problem Statement}
+\label{subsec:problem_statement}
+
+Consider the multi-robot system introduced above with dynamics~\eqref{eq:adv-dif} and communication model~\eqref{eq:disk_graph}--\eqref{eq:neighbors}. The robots are advected by a spatially varying ambient flow field $f_{\text{flow}}(x,t)$ and are subject to bounded disturbances $d_i(t)$, which together induce natural dispersion. While this dispersion promotes exploration, it can also stretch inter-robot distances and break communication links.
+
+Let $\mathcal{G}_t=(\mathcal{V},\mathcal{E}_t)$ denote the physical disk graph induced by the range $R_{\max}$ (Assumption~\ref{ass:A3}). During the mission, robots may intentionally sparsify the network by maintaining a time-varying coordination subgraph $\mathcal{G}_{\mathrm{topo}}(t)=(\mathcal{V},\mathcal{E}_{\mathrm{topo}}(t))$ with $\mathcal{E}_{\mathrm{topo}}(t)\subseteq \mathcal{E}_t$.
+
+We formalize the hard safety/connectivity requirements using the constraint sets
+\begin{align*}
+\mathcal{C}_{\mathrm{safe}} &\triangleq \Big\{x\in(\mathbb{R}^n)^N : \|x_i-x_j\|\ge d_{\min},\;\forall i\neq j\Big\},\\
+\mathcal{C}_{\mathrm{conn}}(\mathcal{E}) &\triangleq \Big\{x\in(\mathbb{R}^n)^N : \|x_i-x_j\|\le R_{\max},\;\forall (i,j)\in\mathcal{E}\Big\},
+\end{align*}
+and the admissible input set $\mathcal{U}\triangleq\{(u_1,\dots,u_N):\|u_i\|\le u_{\max}\;\forall i\}$ (Assumption~\ref{ass:A1}).
+
+Targets (locations of interest) are not known a priori and are detected only when an agent enters its sensing footprint. During exploration (no detection), the team should drift with $f_{\text{flow}}$ while remaining connected and reducing communication redundancy. Upon target detection, a subset of agents should initiate goal-seeking behavior while the remaining agents act as relays so that end-to-end connectivity across the fleet is preserved.
+
+Each agent $i$ has access only to local information: (i)~its own state $x_i$; (ii)~relative states $\{x_j-x_i\}_{j\in\mathcal{N}_i(t)}$ and messages from one-hop neighbors; and (iii)~local graph quantities computable through neighbor exchanges (e.g., two-hop information). We denote this information set by $\mathcal{I}_i(t)$. No centralized computation, global maps, spanning trees, or spectral quantities (e.g., eigenvalues) are assumed.
+
+\noindent\textbf{Problem (Distributed connectivity-preserving control with topology sparsification).}
+Design distributed policies consisting of (i)~a feedback control law $u_i(t)=\kappa_i(\mathcal{I}_i(t))$ for each agent and (ii)~a distributed pruning/maintenance rule that generates $\mathcal{E}_{\mathrm{topo}}(t)\subseteq\mathcal{E}_t$, using only local information, such that for all $t\ge 0$:
+\begin{enumerate}
+    \item \textbf{Hard constraints:} $x(t)\in\mathcal{C}_{\mathrm{safe}}$ and $x(t)\in\mathcal{C}_{\mathrm{conn}}(\mathcal{E}_{\mathrm{topo}}(t))$, and the maintained graph $\mathcal{G}_{\mathrm{topo}}(t)$ remains connected.
+    \item \textbf{Energy efficiency:} the controller exploits advection and uses minimal actuation (e.g., keeps $\|u_i(t)\|$ small and activates control only when constraints would be violated).
+    \item \textbf{Collective reconfiguration:} the team spreads for coverage during exploration and, upon target detection, reconfigures so that designated agents make progress toward the target while relays preserve end-to-end connectivity.
+\end{enumerate}
+
+The proposed framework in Sec.~\ref{sec:method} provides a fully distributed realization of these objectives via distributed topology sparsification and decentralized CLF--CBF control.

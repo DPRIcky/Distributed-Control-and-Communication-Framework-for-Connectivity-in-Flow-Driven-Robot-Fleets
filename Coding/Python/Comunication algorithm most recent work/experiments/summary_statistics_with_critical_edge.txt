@@ -1,0 +1,151 @@
+================================================================================
+COMPREHENSIVE EXPERIMENT RESULTS (WITH CRITICAL EDGE DETECTION)
+================================================================================
+
+SUCCESS RATES:
+--------------------------------------------------------------------------------
+Adjacency Consensus                     :  100.0% (10/10)
+Centralized MST                         :  100.0% (10/10)
+Concurrent Pruning                      :  100.0% (10/10)
+Critical Edge Detection (NEW)           :  100.0% (10/10)
+Full Graph                              :  100.0% (10/10)
+
+================================================================================
+DETAILED METRICS BY METHOD
+================================================================================
+
+
+Adjacency Consensus
+--------------------------------------------------------------------------------
+
+Edge Reduction (%):
+  Mean:    62.21%  Std:    19.07%
+  Min:     31.58%  Max:    80.30%
+
+Minimum λ₂ (Connectivity Safety):
+  Mean:   0.9460  Std:   1.1139
+  Min:    0.0000  Max:   3.0848
+
+Mean λ₂:
+  Mean:   2.7166  Std:   1.4602
+
+Total Control Effort:
+  Mean:      13.24  Std:       5.89
+  Min:        8.54  Max:      25.29
+
+Centralized MST
+--------------------------------------------------------------------------------
+
+Edge Reduction (%):
+  Mean:    80.63%  Std:     4.03%
+  Min:     77.78%  Max:    88.42%
+
+Minimum λ₂ (Connectivity Safety):
+  Mean:   0.1439  Std:   0.0738
+  Min:    0.0000  Max:   0.2608
+
+Mean λ₂:
+  Mean:   0.8632  Std:   0.7681
+
+Total Control Effort:
+  Mean:      13.14  Std:       5.87
+  Min:        8.53  Max:      25.29
+
+Concurrent Pruning
+--------------------------------------------------------------------------------
+
+Edge Reduction (%):
+  Mean:    58.79%  Std:    24.02%
+  Min:     26.32%  Max:    90.00%
+
+Minimum λ₂ (Connectivity Safety):
+  Mean:   0.8896  Std:   1.1101
+  Min:    0.0000  Max:   3.1417
+
+Mean λ₂:
+  Mean:   4.0688  Std:   1.5146
+
+Total Control Effort:
+  Mean:      14.93  Std:       7.26
+  Min:        8.90  Max:      30.57
+
+Critical Edge Detection (NEW)
+--------------------------------------------------------------------------------
+
+Edge Reduction (%):
+  Mean:    81.01%  Std:     3.88%
+  Min:     73.53%  Max:    87.90%
+
+Minimum λ₂ (Connectivity Safety):
+  Mean:  -0.0000  Std:   0.0000
+  Min:   -0.0000  Max:  -0.0000
+
+Mean λ₂:
+  Mean:   0.0000  Std:   0.0000
+
+Total Control Effort:
+  Mean:     762.52  Std:     850.82
+  Min:      187.77  Max:    2511.34
+
+Full Graph
+--------------------------------------------------------------------------------
+
+Edge Reduction (%):
+  Mean:    27.07%  Std:    19.81%
+  Min:      0.00%  Max:    53.33%
+
+Minimum λ₂ (Connectivity Safety):
+  Mean:   2.1035  Std:   1.4125
+  Min:    0.0000  Max:   4.1026
+
+Mean λ₂:
+  Mean:   3.7793  Std:   1.6943
+
+Total Control Effort:
+  Mean:      13.07  Std:       5.84
+  Min:        8.53  Max:      25.29
+
+================================================================================
+CRITICAL EDGE DETECTION - SCENARIO BREAKDOWN
+================================================================================
+
+
+Scenario A: Baseline
+--------------------------------------------------------------------------------
+  Successful Trials: 2
+  Edge Reduction:     80.00%
+  Min λ₂:              -0.0000
+  Mean λ₂:             -0.0000
+  Control Effort:         188.61
+
+Scenario B: Large Timestep
+--------------------------------------------------------------------------------
+  Successful Trials: 2
+  Edge Reduction:     80.00%
+  Min λ₂:              -0.0000
+  Mean λ₂:             -0.0000
+  Control Effort:         361.61
+
+Scenario C: Tight Radius
+--------------------------------------------------------------------------------
+  Successful Trials: 2
+  Edge Reduction:     76.05%
+  Min λ₂:              -0.0000
+  Mean λ₂:              0.0000
+  Control Effort:         303.49
+
+Scenario D: High Robot Count
+--------------------------------------------------------------------------------
+  Successful Trials: 2
+  Edge Reduction:     87.31%
+  Min λ₂:              -0.0000
+  Mean λ₂:              0.0000
+  Control Effort:        2450.44
+
+Scenario E: Extreme Parameters
+--------------------------------------------------------------------------------
+  Successful Trials: 2
+  Edge Reduction:     81.72%
+  Min λ₂:              -0.0000
+  Mean λ₂:              0.0000
+  Control Effort:         508.45

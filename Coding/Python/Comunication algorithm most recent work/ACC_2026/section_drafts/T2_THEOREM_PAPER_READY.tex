@@ -1,0 +1,151 @@
+\begin{theorem}[CLF-CBF practical goal convergence]
+\label{thm:clf-goal-convergence}
+Consider robot $i$ with dynamics~\eqref{eq:adv-dif} satisfying Assumptions~\ref{ass:A1}--\ref{ass:A4}. Let $V_i(x_i)=\|x_i-x_i^{\mathrm{goal}}\|^2$ be the Control Lyapunov Function for goal $x_i^{\mathrm{goal}}\in\mathbb{R}^2$. Define the control $u_i$ by solving the \textbf{CLF-CBF quadratic program}:
+\begin{equation}
+\begin{aligned}
+u_i^*,\,\gamma_i^* = \arg\min_{u_i,\,\gamma_i} \; & \|u_i\|^2 + \lambda\gamma_i^2 \\
+\text{s.t.} \; & \dot{V}_i + \alpha V_i \le \gamma_i, \quad \|u_i\| \le u_{\max}, \\
+& \dot{h}_{ij}^{\mathrm{safe}} + \alpha_s h_{ij}^{\mathrm{safe}} \ge 0 \;\; \forall j\in\mathcal{N}_i, \\
+& \dot{h}_{ij}^{\mathrm{conn}} + \alpha_c h_{ij}^{\mathrm{conn}} \ge 0 \;\; \forall j\in\mathcal{C}_i,
+\end{aligned}
+\label{eq:clf-cbf-qp}
+\end{equation}
+where $\alpha>0$ is the convergence rate, $\gamma_i\ge 0$ is the relaxation variable, $\lambda\gg 1$ (typical: $100$--$1000$), $\mathcal{C}_i$ are critical edges from Theorem~\ref{thm:distributed-connectivity}, and $h_{ij}^{\mathrm{safe}},h_{ij}^{\mathrm{conn}}$ are barrier functions from Theorem~\ref{thm:robust-invariance}.
+
+Then: (i)~the QP is always feasible, (ii)~safety and connectivity are preserved for all $t\ge 0$, and (iii)~the robot converges to a goal neighborhood:
+\begin{equation}
+\limsup_{t\to\infty} \|x_i(t)-x_i^{\mathrm{goal}}\| \le \epsilon_{\mathrm{goal}} = O\left(\frac{\|f_{\mathrm{flow}}\|_{\max}+\bar{d}}{\sqrt{\alpha}}\right),
+\label{eq:residual-set}
+\end{equation}
+with exponential convergence $V_i(t)\le V_i(0)e^{-\alpha t}$ outside the residual set.
+\end{theorem}
+
+\begin{proof}
+The proof proceeds in four steps: (1)~CBF feasibility from Theorem~\ref{thm:robust-invariance}, (2)~CLF relaxation and QP structure, (3)~bound on the relaxation variable, and (4)~convergence to residual set via LaSalle's invariance theorem.
+
+\medskip
+\noindent\textbf{Step 1 (CBF feasibility):}
+From Theorem~\ref{thm:robust-invariance}, under Assumptions~\ref{ass:A1}--\ref{ass:A4}, the control authority condition $u_{\max}>\bar{d}+L_fR_{\max}$ (per~\eqref{eq:A2}) ensures that the CBF constraints:
+\begin{equation}
+\dot{h}_{ij}^{\mathrm{safe}} + \alpha_s h_{ij}^{\mathrm{safe}} \ge 0, \quad \dot{h}_{ij}^{\mathrm{conn}} + \alpha_c h_{ij}^{\mathrm{conn}} \ge 0,
+\label{eq:cbf-constraints-t2}
+\end{equation}
+define a non-empty feasible set $\mathcal{F}_{\mathrm{CBF}}\subseteq\{u_i:\|u_i\|\le u_{\max}\}$. That is, there always exists a control satisfying all safety and connectivity constraints simultaneously.
+
+\medskip
+\noindent\textbf{Step 2 (CLF relaxation and QP feasibility):}
+The CLF constraint $\dot{V}_i+\alpha V_i\le\gamma_i$ is always satisfiable for sufficiently large $\gamma_i$. To show this, compute the Lyapunov derivative:
+\begin{equation}
+\dot{V}_i = \nabla V_i^\top\dot{x}_i = 2(x_i-x_i^{\mathrm{goal}})^\top(f_{\mathrm{flow}}(x_i,t)+d_i+u_i).
+\label{eq:clf-derivative}
+\end{equation}
+
+For any $u_i\in\mathcal{F}_{\mathrm{CBF}}$, by Cauchy--Schwarz:
+\begin{equation}
+|\dot{V}_i| \le 2\|x_i-x_i^{\mathrm{goal}}\|\cdot(\|f_{\mathrm{flow}}\|_{\max}+\bar{d}+\|u_i\|) \le 2\sqrt{V_i}(\|f_{\mathrm{flow}}\|_{\max}+\bar{d}+u_{\max}).
+\label{eq:clf-bound}
+\end{equation}
+
+Thus, choosing $\gamma_i=\dot{V}_i(u_i)+\alpha V_i$ satisfies the CLF constraint by definition, and~\eqref{eq:clf-bound} ensures $\gamma_i<\infty$. Hence the QP~\eqref{eq:clf-cbf-qp} is always feasible.
+
+\emph{Structure of optimal solution:}
+Without CBF constraints, the ideal control minimizing $\|u_i\|^2+\lambda\gamma_i^2$ subject to CLF alone is:
+\begin{equation}
+u_i^{\mathrm{CLF}} = -\frac{\alpha}{2}(x_i-x_i^{\mathrm{goal}}) - (f_{\mathrm{flow}}(x_i,t)+d_i), \quad \gamma_i^{\mathrm{CLF}}=0.
+\label{eq:ideal-clf}
+\end{equation}
+
+Substituting~\eqref{eq:ideal-clf} into~\eqref{eq:clf-derivative}:
+\begin{equation}
+\dot{V}_i = 2(x_i-x_i^{\mathrm{goal}})^\top\left[f_{\mathrm{flow}}+d_i-\frac{\alpha}{2}(x_i-x_i^{\mathrm{goal}})-(f_{\mathrm{flow}}+d_i)\right] = -\alpha V_i,
+\label{eq:exponential-clf}
+\end{equation}
+achieving exponential convergence $V_i(t)=V_i(0)e^{-\alpha t}$.
+
+When $u_i^{\mathrm{CLF}}\in\mathcal{F}_{\mathrm{CBF}}$ (CBF constraints inactive), the QP selects $\gamma_i^*=0$ and exponential decay holds. When CBF constraints are active, the QP projects onto $\mathcal{F}_{\mathrm{CBF}}$ and uses $\gamma_i^*>0$ to relax the CLF condition, compensating for slower convergence.
+
+\medskip
+\noindent\textbf{Step 3 (Bound on relaxation variable):}
+To characterize the residual set, we bound $\bar{\gamma}=\sup_{t\ge 0}\gamma_i^*(t)$.
+
+Near the goal, safety and connectivity constraints may prevent direct approach, forcing control orthogonal to the goal direction. In the worst case:
+\begin{equation}
+(x_i-x_i^{\mathrm{goal}})^\top u_i^{\mathrm{QP}} \approx 0.
+\label{eq:orthogonal-control}
+\end{equation}
+
+Substituting~\eqref{eq:orthogonal-control} into~\eqref{eq:clf-derivative}:
+\begin{equation}
+\dot{V}_i \approx 2(x_i-x_i^{\mathrm{goal}})^\top(f_{\mathrm{flow}}+d_i) \le 2\sqrt{V_i}\cdot(\|f_{\mathrm{flow}}\|_{\max}+\bar{d}).
+\label{eq:worst-case-derivative}
+\end{equation}
+
+In steady state, $\dot{V}_i\approx 0$. From the CLF constraint $\dot{V}_i+\alpha V_i\le\gamma_i$:
+\begin{equation}
+\gamma_i \ge \dot{V}_i+\alpha V_i \approx 0+\alpha V_i = \alpha V_i.
+\label{eq:gamma-steady}
+\end{equation}
+
+Combining~\eqref{eq:worst-case-derivative} and~\eqref{eq:gamma-steady}, in steady state:
+\begin{equation}
+\bar{\gamma} \approx \max\{2\sqrt{V_{\mathrm{steady}}}(\|f_{\mathrm{flow}}\|_{\max}+\bar{d}),\,\alpha V_{\mathrm{steady}}\}.
+\label{eq:gamma-bound}
+\end{equation}
+
+For small $V_{\mathrm{steady}}$ (near goal), the first term dominates. Setting $V_{\mathrm{steady}}\approx\bar{\gamma}/\alpha$ self-consistently:
+\begin{equation}
+\bar{\gamma} \approx 2\sqrt{\frac{\bar{\gamma}}{\alpha}}(\|f_{\mathrm{flow}}\|_{\max}+\bar{d}).
+\label{eq:self-consistent}
+\end{equation}
+
+Solving for $\bar{\gamma}$:
+\begin{equation}
+\sqrt{\bar{\gamma}} = \frac{2(\|f_{\mathrm{flow}}\|_{\max}+\bar{d})}{\sqrt{\alpha}} \implies \bar{\gamma} = \frac{4(\|f_{\mathrm{flow}}\|_{\max}+\bar{d})^2}{\alpha}.
+\label{eq:gamma-solution}
+\end{equation}
+
+Hence the residual set radius is:
+\begin{equation}
+\epsilon_{\mathrm{goal}} = \sqrt{\frac{\bar{\gamma}}{\alpha}} = \frac{2(\|f_{\mathrm{flow}}\|_{\max}+\bar{d})}{\sqrt{\alpha}}.
+\label{eq:residual-radius}
+\end{equation}
+
+\medskip
+\noindent\textbf{Step 4 (LaSalle's invariance theorem):}
+Define the shifted Lyapunov function:
+\begin{equation}
+\tilde{V}_i = V_i - \frac{\bar{\gamma}}{\alpha}.
+\label{eq:shifted-lyapunov}
+\end{equation}
+
+From the CLF constraint $\dot{V}_i+\alpha V_i\le\gamma_i\le\bar{\gamma}$:
+\begin{equation}
+\dot{V}_i \le -\alpha V_i + \bar{\gamma} = -\alpha\left(V_i-\frac{\bar{\gamma}}{\alpha}\right) = -\alpha\tilde{V}_i.
+\label{eq:shifted-derivative}
+\end{equation}
+
+Thus $\dot{\tilde{V}}_i\le -\alpha\tilde{V}_i$. When $\tilde{V}_i>0$ (outside residual set), this inequality is strict: $\dot{\tilde{V}}_i<0$. The set $\{\tilde{V}_i\le 0\}$ is positively invariant.
+
+By LaSalle's invariance principle \cite{khalil2002}, all trajectories starting with $V_i(0)<\infty$ converge to the largest invariant set $\mathcal{M}$ where $\dot{\tilde{V}}_i=0$. This set is:
+\begin{equation}
+\mathcal{M} = \left\{x_i : V_i(x_i)\le\frac{\bar{\gamma}}{\alpha}\right\}.
+\label{eq:invariant-set}
+\end{equation}
+
+Therefore:
+\begin{equation}
+\limsup_{t\to\infty} V_i(t) \le \frac{\bar{\gamma}}{\alpha}, \quad \text{i.e.,} \quad \limsup_{t\to\infty}\|x_i(t)-x_i^{\mathrm{goal}}\| \le \epsilon_{\mathrm{goal}}.
+\label{eq:convergence-result}
+\end{equation}
+
+Outside the residual set ($V_i>\bar{\gamma}/\alpha$), CBF constraints are less restrictive, so $\gamma_i^*\approx 0$. Then $\dot{V}_i\le -\alpha V_i$, and by Grönwall's inequality:
+\begin{equation}
+V_i(t) \le V_i(0)\,e^{-\alpha t}, \quad \text{for }t\le T_{\mathrm{residual}}=\frac{1}{\alpha}\ln\left(\frac{\alpha V_i(0)}{\bar{\gamma}}\right).
+\label{eq:exponential-convergence}
+\end{equation}
+\end{proof}
+
+
+\begin{remark}
+Critical edges $\mathcal{C}_i$ are identified via Theorem~\ref{thm:distributed-connectivity}, ensuring fully distributed control. The soft CLF with hard CBF prioritizes safety/connectivity over exact goal convergence—appropriate when collisions are unacceptable but goal neighborhoods suffice (e.g., plume sampling, feature inspection).
+\end{remark}

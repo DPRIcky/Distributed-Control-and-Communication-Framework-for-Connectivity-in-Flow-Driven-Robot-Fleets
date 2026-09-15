@@ -1,0 +1,792 @@
+Package: Ocean
+   Platform: Windows
+   Version: 2.2.2
+   Path: Windows/Holodeck/Binaries/Win64/Holodeck
+   Worlds:
+     Rooms
+         Scenarios:
+           Rooms-DataGen:
+             Agents:
+               Name: turtle0
+               Type: TurtleAgent
+               Sensors:
+                 LocationSensor
+                   lcm_channel: POSITION
+                 RotationSensor
+                   lcm_channel: ROTATION
+                 RangeFinderSensor
+                   lcm_channel: LIDAR
+                   configuration
+                     LaserCount: 64
+                     LaserMaxDistance: 20
+                     LaserAngle: 0
+                     LaserDebug: True
+     ExampleLevel
+         Scenarios:
+     Tank
+         Scenarios:
+     SimpleUnderwater
+         Scenarios:
+           SimpleUnderwater-Hovering:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+           SimpleUnderwater-Torpedo:
+             Agents:
+               Name: auv0
+               Type: TorpedoAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+     PierHarbor
+         Scenarios:
+           PierHarbor-Hovering:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+           PierHarbor-HoveringCamera:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 RGBCamera
+                   sensor_name: LeftCamera
+                   socket: CameraLeftSocket
+                   Hz: 5
+                   configuration
+                     CaptureWidth: 512
+                     CaptureHeight: 512
+                 RGBCamera
+                   sensor_name: RightCamera
+                   socket: CameraRightSocket
+                   Hz: 5
+                   configuration
+                     CaptureWidth: 512
+                     CaptureHeight: 512
+           PierHarbor-HoveringImagingSonar:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 ImagingSonar
+                   socket: SonarSocket
+                   Hz: 1
+                   configuration
+                     RangeBins: 512
+                     AzimuthBins: 512
+                     RangeMin: 1
+                     RangeMax: 40
+                     InitOctreeRange: 50
+                     Elevation: 20
+                     Azimuth: 120
+                     AzimuthStreaks: -1
+                     ScaleNoise: True
+                     AddSigma: 0.15
+                     MultSigma: 0.2
+                     RangeSigma: 0.1
+                     MultiPath: True
+           PierHarbor-Torpedo:
+             Agents:
+               Name: auv0
+               Type: TorpedoAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+     OpenWater
+         Scenarios:
+           OpenWater-Hovering:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+           OpenWater-HoveringCamera:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 RGBCamera
+                   sensor_name: LeftCamera
+                   socket: CameraLeftSocket
+                   Hz: 5
+                   configuration
+                     CaptureWidth: 512
+                     CaptureHeight: 512
+                 RGBCamera
+                   sensor_name: RightCamera
+                   socket: CameraRightSocket
+                   Hz: 5
+                   configuration
+                     CaptureWidth: 512
+                     CaptureHeight: 512
+           OpenWater-HoveringImagingSonar:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 ImagingSonar
+                   socket: SonarSocket
+                   Hz: 2
+                   configuration
+                     RangeBins: 512
+                     AzimuthBins: 512
+                     RangeMin: 1
+                     RangeMax: 40
+                     InitOctreeRange: 50
+                     Elevation: 20
+                     Azimuth: 120
+                     AzimuthStreaks: -1
+                     ScaleNoise: True
+                     AddSigma: 0.15
+                     MultSigma: 0.2
+                     RangeSigma: 0.1
+                     MultiPath: True
+           OpenWater-Torpedo:
+             Agents:
+               Name: auv0
+               Type: TorpedoAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+           OpenWater-TorpedoProfilingSonar:
+             Agents:
+               Name: auv0
+               Type: TorpedoAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 ProfilingSonar
+                   socket: SonarSocket
+                   Hz: 2
+                   configuration
+                     RangeBins: 512
+                     AzimuthBins: 512
+                     RangeMin: 1
+                     RangeMax: 60
+                     InitOctreeRange: 70
+                     Elevation: 1
+                     Azimuth: 120
+                     AzimuthStreaks: -1
+                     ScaleNoise: True
+                     AddSigma: 0.15
+                     MultSigma: 0.2
+                     RangeSigma: 0.1
+                     MultiPath: True
+           OpenWater-TorpedoSidescanSonar:
+             Agents:
+               Name: auv0
+               Type: TorpedoAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 SidescanSonar
+                   socket: SonarSocket
+                   Hz: 10
+                   configuration
+                     RangeBins: 2000
+                     Azimuth: 170
+                     RangeMin: 0.5
+                     RangeMax: 40
+                     AddSigma: 0.05
+                     MultSigma: 0.05
+                     InitOctreeRange: 50
+           OpenWater-TorpedoSinglebeamSonar:
+             Agents:
+               Name: auv0
+               Type: TorpedoAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 SinglebeamSonar
+                   socket: SonarSocket
+                   Hz: 10
+                   configuration
+                     OpeningAngle: 30
+                     RangeBins: 200
+                     RangeMin: 0.5
+                     RangeMax: 30
+                     RangeSigma: 0.1
+                     InitOctreeRange: 40
+     FlatUnderwater
+         Scenarios:
+     Dam
+         Scenarios:
+           Dam-Hovering:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+           Dam-HoveringCamera:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 RGBCamera
+                   sensor_name: LeftCamera
+                   socket: CameraLeftSocket
+                   Hz: 5
+                   configuration
+                     CaptureWidth: 512
+                     CaptureHeight: 512
+                 RGBCamera
+                   sensor_name: RightCamera
+                   socket: CameraRightSocket
+                   Hz: 5
+                   configuration
+                     CaptureWidth: 512
+                     CaptureHeight: 512
+           Dam-HoveringImagingSonar:
+             Agents:
+               Name: auv0
+               Type: HoveringAUV
+               Sensors:
+                 PoseSensor
+                   socket: IMUSocket
+                 VelocitySensor
+                   socket: IMUSocket
+                 IMUSensor
+                   socket: IMUSocket
+                   Hz: 30
+                   configuration
+                     AccelSigma: 0.00277
+                     AngVelSigma: 0.00123
+                     AccelBiasSigma: 0.00141
+                     AngVelBiasSigma: 0.00388
+                     ReturnBias: True
+                 GPSSensor
+                   socket: IMUSocket
+                   Hz: 5
+                   configuration
+                     Sigma: 0.5
+                     Depth: 1
+                     DepthSigma: 0.25
+                 DVLSensor
+                   socket: DVLSocket
+                   Hz: 20
+                   configuration
+                     Elevation: 22.5
+                     VelSigma: 0.02626
+                     ReturnRange: True
+                     MaxRange: 50
+                     RangeSigma: 0.1
+                 DepthSensor
+                   socket: DepthSocket
+                   Hz: 30
+                   configuration
+                     Sigma: 0.255
+                 ImagingSonar
+                   socket: SonarSocket
+                   Hz: 1
+                   configuration
+                     RangeBins: 512
+                     AzimuthBins: 512
+                     RangeMin: 1
+                     RangeMax: 40
+                     InitOctreeRange: 50
+                     Elevation: 20
+                     Azimuth: 120
+                     AzimuthStreaks: -1
+                     ScaleNoise: True
+                     AddSigma: 0.15
+                     MultSigma: 0.2
+                     RangeSigma: 0.1
+                     MultiPath: True

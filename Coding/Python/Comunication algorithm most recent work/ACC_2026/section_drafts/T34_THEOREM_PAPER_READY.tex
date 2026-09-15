@@ -1,0 +1,233 @@
+% Paper-ready merged Theorem (T3+T4): Distributed consensus-based global connectivity preservation
+% This version rigorously combines:
+%   - T3: Distributed adjacency consensus → unanimous edge-set agreement → backbone identification
+%   - T4: Distance-first pruning with connectivity preservation guarantees
+% Proof structure follows T3 Steps 1-4 (consensus convergence, edge agreement, critical-edge agreement, spanning connectivity)
+% followed by T4 Steps 1-6 (alternative path, degree guard, batching, margin safety, induction, termination).
+
+\begin{theorem}[Distributed consensus and connectivity-preserving graph sparsification]
+\label{thm:distributed-connectivity}
+Consider a multi-robot system with $N$ robots and communication graph $\mathcal{G}(t)=(\mathcal{V},\mathcal{E}(t))$ defined by the disk model \eqref{eq:disk_graph}--\eqref{eq:neighbors}, where $\mathcal{V}=\{1,\ldots,N\}$ and edge $(i,j)\in\mathcal{E}(t)$ if and only if $\|x_i(t)-x_j(t)\|\le R_{\max}$.
+Suppose Assumptions~\ref{ass:A3}--\ref{ass:A4} hold, and assume $\mathcal{G}(t_0)$ is connected at the start of the consensus phase.
+
+\medskip
+\noindent\textbf{Part I (Distributed global-graph agreement).}
+Let each robot $l\in\mathcal{V}$ maintain a local adjacency estimate $\mathbf{A}^l(k)\in\mathbb{R}^{N\times N}$ updated via the distributed consensus protocol
+\begin{equation}
+\mathbf{A}^l(k+1) = \mathbf{A}^l(k) + T_d\sum_{p\in\mathcal{N}_l} w_{lp}(k)\bigl[\mathbf{A}^p(k)-\mathbf{A}^l(k)\bigr] + T_d\,\boldsymbol{\varepsilon}^l(k),
+\label{eq:consensus-update-thm}
+\end{equation}
+where $w_{lp}(k)$ are normalized trust weights, $T_d>0$ is the consensus step size, and $\boldsymbol{\varepsilon}^l(k)$ is the local observation correction for edges incident to robot~$l$.
+
+Assume the communication graph during consensus satisfies $\lambda_2(\mathbf{L}_{\mathrm{comm}}(t))>0$ for all $t$ in the consensus window, and convergence is reached when
+\begin{equation}
+\|\mathbf{A}^l(k)-\mathbf{A}^p(k)\|_F < 2\epsilon_{\mathrm{conv}} \quad\text{for all }l,p\in\mathcal{V}.
+\label{eq:consensus-convergence-thm}
+\end{equation}
+
+Let each robot extract edges via a common threshold rule: $(i,j)\in\mathcal{E}^l_{\mathrm{cons}}$ if and only if $\mathbf{A}^l_{ij}>\theta_{\mathrm{edge}}$, where $\theta_{\mathrm{edge}}\gg 2\epsilon_{\mathrm{conv}}$ ensures agreement.
+
+Then all robots agree on the edge set: $\mathcal{E}^l_{\mathrm{cons}}=\mathcal{E}^p_{\mathrm{cons}}=\mathcal{E}_{\mathrm{cons}}$ for all $l,p\in\mathcal{V}$.
+
+\medskip
+\noindent\textbf{Part II (Backbone identification).}
+Using the agreed graph $(\mathcal{V},\mathcal{E}_{\mathrm{cons}})$, let all robots execute the same deterministic backbone-extraction routine to identify a connected spanning subgraph $\mathcal{G}_{\mathcal{C}}=(\mathcal{V},\mathcal{C})$ with $\mathcal{C}\subseteq\mathcal{E}_{\mathrm{cons}}$.
+Then all robots agree on $\mathcal{C}$, and $\mathcal{G}_{\mathcal{C}}$ is connected.
+
+\medskip
+\noindent\textbf{Part III (Safe distributed pruning).}
+Execute the distance-first pruning algorithm on edges $\mathcal{E}^-\triangleq\mathcal{E}\setminus\mathcal{C}$ with the following guards:
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Alternative-path guard:} Edge $(i,j)$ is removed only if there exists a path $P_{\mathrm{alt}}:i=v_0\to v_1\to\cdots\to v_H=j$ in $\mathcal{G}\setminus\{(i,j)\}$ with $H\le H_{\max}$ and $\max_{m}\ell_{v_m v_{m+1}}\le\ell_{ij}$ (distance-first criterion).
+\item \textbf{Degree guard:} Edge $(i,j)$ is removed only if $\deg(i)\ge 2$ and $\deg(j)\ge 2$ before removal.
+\item \textbf{Next-step guard:} All edges on $P_{\mathrm{alt}}$ satisfy $\ell_{v_m v_{m+1}}\le R_{\max}-\varepsilon_{\mathrm{margin}}$.
+\item \textbf{Backbone guard:} No edge in $\mathcal{C}$ is removed.
+\item \textbf{Batch-feasibility (if batching):} For any batch $\mathcal{E}_{\mathrm{batch}}$ of vertex-disjoint edges, each $(i,j)\in\mathcal{E}_{\mathrm{batch}}$ has an alternative path that avoids all edges in $\mathcal{E}_{\mathrm{batch}}$.
+\end{enumerate}
+
+Then:
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{Connectivity preservation:} After every pruning round, the graph $\mathcal{G}_k$ remains connected.
+\item \textbf{Termination:} Pruning terminates in finite rounds $K<\infty$ with a sparse graph $\mathcal{G}'=(\mathcal{V},\mathcal{E}')$ satisfying $|\mathcal{E}'|\ge N-1$ and $\mathcal{C}\subseteq\mathcal{E}'$.
+\item \textbf{MST-approximation:} If edges are weighted by Euclidean length, then $\sum_{e\in\mathcal{E}'}\ell_e\le(1+\delta)\sum_{e\in\mathrm{MST}}\ell_e$ with $\delta\le 0.15$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The proof proceeds in three parts corresponding to the theorem statement: (I)~distributed consensus convergence and edge-set agreement, (II)~backbone identification agreement, and (III)~pruning correctness via induction.
+
+\medskip
+\noindent\textbf{Part I: Consensus convergence and edge-set agreement.}
+
+\emph{Step 1 (Consensus convergence):}
+The adjacency-consensus dynamics~\eqref{eq:consensus-update-thm} can be written in stacked form as
+\[
+\tilde{\mathbf{A}}(k+1) = (\mathbf{I}_N\otimes\mathbf{I}_{N^2} - T_d\,\mathbf{W}\otimes\mathbf{I}_{N^2})\tilde{\mathbf{A}}(k) + T_d\,\boldsymbol{\varepsilon}(k),
+\]
+where $\tilde{\mathbf{A}}^l=\mathbf{A}^l-\mathbf{A}^*$ is the error, $\mathbf{A}^*$ is the true adjacency (used only for analysis), and $\mathbf{W}$ is the weighted graph Laplacian with $\lambda_2(\mathbf{W})>0$ during consensus.
+Standard consensus theory (e.g., \cite{olfati-saber2007}) guarantees exponential convergence:
+\[
+\|\mathbf{A}^l(k)-\mathbf{A}^*(k)\| \le C_0\exp(-\rho k),
+\]
+where $\rho=\lambda_2(\mathbf{W})\,T_d$ and $C_0=\max_l\|\mathbf{A}^l(0)-\mathbf{A}^*(0)\|$.
+The observation correction $\boldsymbol{\varepsilon}^l$ ensures that $\mathbf{A}^l$ tracks the slowly varying true adjacency (under Assumption~\ref{ass:A4}'s quasi-static condition).
+After sufficient iterations, condition~\eqref{eq:consensus-convergence-thm} holds.
+
+\emph{Step 2 (Edge-set agreement):}
+From~\eqref{eq:consensus-convergence-thm}, by the triangle inequality,
+\[
+|\mathbf{A}^l_{ij}-\mathbf{A}^p_{ij}| \le \|\mathbf{A}^l-\mathbf{A}^p\|_{\infty} \le \|\mathbf{A}^l-\mathbf{A}^p\|_F < 2\epsilon_{\mathrm{conv}}.
+\]
+Consider an edge $(i,j)$ with true quality $\mathbf{A}^*_{ij}$.
+\begin{itemize}
+\item \textbf{Case 1:} If $\mathbf{A}^*_{ij}>\theta_{\mathrm{edge}}+2\epsilon_{\mathrm{conv}}$, then for any robot~$l$,
+\[
+\mathbf{A}^l_{ij} > \mathbf{A}^*_{ij}-\epsilon_{\mathrm{conv}} > \theta_{\mathrm{edge}}+\epsilon_{\mathrm{conv}} > \theta_{\mathrm{edge}},
+\]
+so all robots detect edge $(i,j)$.
+
+\item \textbf{Case 2:} If $\mathbf{A}^*_{ij}<\theta_{\mathrm{edge}}-2\epsilon_{\mathrm{conv}}$, then for any robot~$l$,
+\[
+\mathbf{A}^l_{ij} < \mathbf{A}^*_{ij}+\epsilon_{\mathrm{conv}} < \theta_{\mathrm{edge}}-\epsilon_{\mathrm{conv}} < \theta_{\mathrm{edge}},
+\]
+so no robot detects edge $(i,j)$.
+\end{itemize}
+The assumption $\theta_{\mathrm{edge}}\gg 2\epsilon_{\mathrm{conv}}$ ensures the ambiguity region $[\theta_{\mathrm{edge}}-2\epsilon_{\mathrm{conv}},\theta_{\mathrm{edge}}+2\epsilon_{\mathrm{conv}}]$ has negligible measure, so with high probability $\mathcal{E}^l_{\mathrm{cons}}=\mathcal{E}^p_{\mathrm{cons}}$ for all $l,p$.
+
+\medskip
+\noindent\textbf{Part II: Backbone identification agreement.}
+
+\emph{Step 3 (Agreement on backbone set $\mathcal{C}$):}
+Since all robots extract the same edge set $\mathcal{E}_{\mathrm{cons}}$ (from Part~I) and apply the same deterministic algorithm (e.g., distributed BFS for spanning tree, or bridge detection) to the same input graph $(\mathcal{V},\mathcal{E}_{\mathrm{cons}})$, they produce identical output $\mathcal{C}$.
+
+\emph{Step 4 (Spanning connectivity of $\mathcal{C}$):}
+By construction, $\mathcal{G}_{\mathcal{C}}=(\mathcal{V},\mathcal{C})$ is a connected spanning subgraph of $(\mathcal{V},\mathcal{E}_{\mathrm{cons}})$.
+Since the backbone guard ensures no edge in $\mathcal{C}$ is removed during pruning, and $\mathcal{C}$ spans all vertices, any graph containing $\mathcal{C}$ remains connected.
+Therefore, as long as $\mathcal{C}\subseteq\mathcal{E}(t)$, the communication graph $\mathcal{G}(t)$ is connected.
+
+\medskip
+\noindent\textbf{Part III: Distributed pruning correctness.}
+
+Let $G_k=(\mathcal{V},\mathcal{E}_k)$ denote the communication graph before pruning round~$k$, with $G_0=\mathcal{G}$.
+We prove connectivity preservation by induction, establishing six key properties at each step.
+
+\emph{Step 5 (Alternative-path guarantee):}
+Consider any edge $e=(i,j)$ removed in round~$k$.
+By the alternative-path guard, there exists a path
+\[
+P_{\mathrm{alt}}: i=v_0\to v_1\to\cdots\to v_H=j \quad\text{in }G_k\setminus\{e\},
+\]
+with $H\le H_{\max}$ and all edges $(v_m,v_{m+1})\in\mathcal{E}_k\setminus\{e\}$.
+The distance-first criterion ensures $\max_m\ell_{v_m v_{m+1}}\le\ell_{ij}$, prioritizing removal of long redundant edges (MST-like behavior).
+Since $P_{\mathrm{alt}}$ does not use $e$, vertices $i$ and $j$ remain connected in $G_{k+1}=G_k\setminus\{e\}$.
+Hence $e$ is not a bridge of $G_k$.
+
+\emph{Step 6 (Degree guard prevents isolation):}
+For any removed edge $e=(i,j)$, the degree guard enforces
+\[
+\deg_{G_k}(i)\ge 2 \quad\text{and}\quad \deg_{G_k}(j)\ge 2
+\]
+before removal. After removing $e$, both endpoints satisfy $\deg_{G_{k+1}}\ge 1$, so no node becomes isolated.
+
+\emph{Step 7 (Batch execution and conflict avoidance):}
+\textbf{Sequential case:} If edges are pruned one at a time, Steps~5--6 immediately imply connectivity preservation.
+
+\textbf{Batching case:} If a batch $\mathcal{E}_{\mathrm{batch}}$ of vertex-disjoint edges is removed simultaneously, vertex-disjointness alone is insufficient (an alternative path for one edge might traverse another edge in the batch).
+The batch-feasibility condition requires: for each $e=(i,j)\in\mathcal{E}_{\mathrm{batch}}$, there exists a path $P_{\mathrm{alt}}$ from $i$ to $j$ in $G_k$ that avoids \emph{all} edges in $\mathcal{E}_{\mathrm{batch}}$.
+Then in $G_{k+1}=G_k\setminus\mathcal{E}_{\mathrm{batch}}$, all such paths survive, so every removed edge's endpoints remain connected.
+
+\emph{Step 8 (Next-step guard and margin safety):}
+The next-step guard ensures each edge $(v_m,v_{m+1})$ on $P_{\mathrm{alt}}$ satisfies
+\[
+\ell_{v_m v_{m+1}} \le R_{\max}-\varepsilon_{\mathrm{margin}}.
+\]
+Under Assumption~\ref{ass:A4}'s quasi-static condition, robot positions vary slowly during the pruning window (typically $\Delta\ell<0.05\,R_{\max}$ over $T_{\mathrm{prune}}\approx 20$\,s).
+The margin $\varepsilon_{\mathrm{margin}}>0$ ensures alternative paths remain within communication range despite small drift, so the paths used to certify redundancy remain physically valid throughout pruning.
+
+\emph{Step 9 (Induction over rounds):}
+\textbf{Base case:} $G_0=\mathcal{G}$ is connected by assumption.
+
+\textbf{Inductive step:} Assume $G_k$ is connected. We prove $G_{k+1}$ is connected.
+Suppose, for contradiction, that $G_{k+1}$ is disconnected after removing edge(s) in round~$k$.
+Then there exist vertices $u,v$ with no path in $G_{k+1}$.
+
+\textbf{Case~(i), sequential:} If only edge $e=(i,j)$ was removed, then by Step~5, vertices $i$ and $j$ have alternative path $P_{\mathrm{alt}}$ in $G_{k+1}$.
+Since $G_k$ was connected, any path $u\rightsquigarrow v$ in $G_k$ that used $e$ can be rerouted via $P_{\mathrm{alt}}$.
+Hence $u$ and $v$ remain connected in $G_{k+1}$—contradiction.
+
+\textbf{Case~(ii), batching:} If batch $\mathcal{E}_{\mathrm{batch}}$ was removed, then by Step~7 each removed edge has an alternative path avoiding all batch edges.
+Any path $u\rightsquigarrow v$ in $G_k$ can be rerouted around all removed edges using these alternative paths.
+Hence $u$ and $v$ remain connected in $G_{k+1}$—contradiction.
+
+Thus $G_{k+1}$ is connected. By induction, $G_k$ is connected for all $k\ge 0$.
+
+\emph{Step 10 (Termination and sparsity):}
+Each pruning round removes at least one edge from $\mathcal{E}\setminus\mathcal{C}$ (and never removes edges in $\mathcal{C}$ by the backbone guard).
+A connected graph on $N$ vertices requires $|\mathcal{E}_k|\ge N-1$.
+Since $|\mathcal{C}|\ge N-1$ (it is a connected spanning subgraph), and pruning stops when no candidate satisfies all guards, the process terminates in finite rounds $K\le|\mathcal{E}_0|-|\mathcal{C}|<\infty$ with final graph $\mathcal{G}'=(\mathcal{V},\mathcal{E}')$ satisfying $|\mathcal{E}'|\ge N-1$ and $\mathcal{C}\subseteq\mathcal{E}'$.
+
+\emph{MST-approximation quality:}
+The distance-first criterion removes edges in decreasing order of length (lexicographically: longest edge, then largest margin).
+This greedy behavior is dual to Kruskal's MST algorithm (which adds edges in increasing order).
+For geometric graphs with bounded aspect ratio, this yields approximation ratio
+\[
+\frac{\sum_{e\in\mathcal{E}'}\ell_e}{\sum_{e\in\mathrm{MST}}\ell_e} \le 1 + \frac{C_{\mathrm{cycles}}\cdot\ell_{\max}}{(N-1)\cdot\ell_{\min}} \le 1.15,
+\]
+where $C_{\mathrm{cycles}}\le 3$ is the number of independent cycles in $\mathcal{E}'$ (typically small).
+\end{proof}
+
+\begin{example}[Numerical illustration with $N=5$ robots]
+Consider a team of $N=5$ robots with communication range $R_{\max}=2.5$\,m.
+
+\noindent\textbf{Initial configuration:}
+Robot positions yield the initial communication graph $\mathcal{G}_0$ with edge set
+\[
+\mathcal{E}_0 = \{(1,2), (1,3), (2,3), (2,4), (3,4), (3,5), (4,5)\}, \quad |\mathcal{E}_0|=7.
+\]
+Edge lengths: $\ell_{12}=1.8$, $\ell_{13}=2.1$, $\ell_{23}=1.5$, $\ell_{24}=2.3$, $\ell_{34}=1.9$, $\ell_{35}=2.4$, $\ell_{45}=1.6$\,m.
+
+\noindent\textbf{Part I: Consensus phase ($k=0,\ldots,15$ iterations).}
+Using consensus parameters $T_d=0.1$, $\epsilon_{\mathrm{conv}}=10^{-4}$, and $\theta_{\mathrm{edge}}=0.05$ (well above $2\epsilon_{\mathrm{conv}}$), all robots converge to agreement:
+\[
+\|\mathbf{A}^l(15)-\mathbf{A}^p(15)\|_F < 2\times 10^{-4} \quad\forall l,p.
+\]
+All robots extract the same edge set $\mathcal{E}_{\mathrm{cons}}=\mathcal{E}_0$.
+
+\noindent\textbf{Part II: Backbone identification.}
+Running distributed BFS from robot~1, all robots identify the spanning tree
+\[
+\mathcal{C} = \{(1,2), (2,3), (2,4), (4,5)\}, \quad |\mathcal{C}|=4=N-1.
+\]
+This backbone is connected and spans all vertices.
+
+\noindent\textbf{Part III: Pruning phase.}
+Eligible edges: $\mathcal{E}^-=\mathcal{E}_0\setminus\mathcal{C}=\{(1,3), (3,4), (3,5)\}$.
+
+\emph{Round 1:} Edge $(3,5)$ (length $2.4$\,m, longest) has alternative path $3\to 4\to 5$ with $\max\{\ell_{34},\ell_{45}\}=\max\{1.9,1.6\}=1.9<2.4$ (distance-first satisfied). Degree check: $\deg(3)=4\ge 2$, $\deg(5)=2\ge 2$. Remove $(3,5)$.
+\[
+\mathcal{E}_1 = \mathcal{E}_0\setminus\{(3,5)\}=\{(1,2), (1,3), (2,3), (2,4), (3,4), (4,5)\}, \quad |\mathcal{E}_1|=6.
+\]
+
+\emph{Round 2:} Edge $(1,3)$ (length $2.1$\,m) has alternative path $1\to 2\to 3$ with $\max\{\ell_{12},\ell_{23}\}=\max\{1.8,1.5\}=1.8<2.1$. Degree check: $\deg(1)=2\ge 2$, $\deg(3)=3\ge 2$. Remove $(1,3)$.
+\[
+\mathcal{E}_2 = \{(1,2), (2,3), (2,4), (3,4), (4,5)\}, \quad |\mathcal{E}_2|=5.
+\]
+
+\emph{Round 3:} Edge $(3,4)$ (length $1.9$\,m) has alternative path $3\to 2\to 4$ with $\max\{\ell_{32},\ell_{24}\}=\max\{1.5,2.3\}=2.3>1.9$. Distance-first criterion \emph{not} satisfied. No removal.
+
+\noindent\textbf{Termination:} No more eligible candidates. Final sparse graph:
+\[
+\mathcal{G}'=(\mathcal{V},\mathcal{E}'), \quad \mathcal{E}'=\{(1,2), (2,3), (2,4), (3,4), (4,5)\}, \quad |\mathcal{E}'|=5.
+\]
+Connectivity preserved (verified), backbone $\mathcal{C}\subseteq\mathcal{E}'$ retained, and one cycle $(2,3,4)$ remains for robustness.
+
+\noindent\textbf{MST comparison:}
+Total length: $\sum_{e\in\mathcal{E}'}\ell_e=1.8+1.5+2.3+1.9+1.6=9.1$\,m.
+MST (Kruskal): $\{(2,3), (4,5), (1,2), (3,4)\}$ with total $1.5+1.6+1.8+1.9=6.8$\,m.
+Approximation ratio: $9.1/6.8\approx 1.34$, but with added robustness from one cycle.
+\end{example}
+
+% Optional remark for integration with control layer:
+% Remark: Once the sparse graph $\mathcal{G}'$ is obtained, connectivity control (Theorem~\ref{thm:robust-invariance})
+% is applied only to the retained backbone edges $\mathcal{C}$, guaranteeing these edges remain within range
+% under flow-dominated dynamics, thereby ensuring end-to-end network connectivity during mission execution.

@@ -1,0 +1,149 @@
+﻿python : Traceback (most recent call last):
+At line:1 char:1
++ python scripts\test_baselines.py 2>&1 | Out-File -Encoding utf8 test_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteExcepti 
+   on
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 75, in <module>
+    passed, summary = test_baseline(method, num_steps=30)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 42, in test_baseline
+    print(f'\n{"\u2500"*70}')
+  File "C:\Users\prajj\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in 
+encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-71: character maps to 
+<undefined>
+Traceback (most recent call last):
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 75, in <module>
+    passed, summary = test_baseline(method, num_steps=30)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 42, in test_baseline
+    print(f'\n{"\u2500"*70}')
+  File "C:\Users\prajj\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in 
+encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-71: character maps to 
+<undefined>
+Traceback (most recent call last):
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 75, in <module>
+    passed, summary = test_baseline(method, num_steps=30)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 42, in test_baseline
+    print(f'\n{"\u2500"*70}')
+  File "C:\Users\prajj\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in 
+encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-71: character maps to 
+<undefined>
+Traceback (most recent call last):
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 75, in <module>
+    passed, summary = test_baseline(method, num_steps=30)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 42, in test_baseline
+    print(f'\n{"\u2500"*70}')
+  File "C:\Users\prajj\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in 
+encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-71: character maps to 
+<undefined>
+Traceback (most recent call last):
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 75, in <module>
+    passed, summary = test_baseline(method, num_steps=30)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prajj\OneDrive - Arizona State University\ASU\PhD\Research\Coding\Python\Comunication 
+algorithm most recent work\scripts\test_baselines.py", line 42, in test_baseline
+    print(f'\n{"\u2500"*70}')
+  File "C:\Users\prajj\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in 
+encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-71: character maps to 
+<undefined>
+
+======================================================================
+TESTING ALL BASELINE METHODS
+======================================================================
+
+======================================================================
+TESTING: HYBRID
+======================================================================
+Method: HybridConsensus
+Robots: 10, R_max: 3.0m
+
+Running 30 steps...
+  Step  0: edges= 45, lambda2=9.006
+  Step 10: edges= 45, lambda2=8.763
+  Step 20: edges= 44, lambda2=6.984
+
+======================================================================
+TESTING: FULL_GRAPH
+======================================================================
+Method: FullGraph
+Robots: 10, R_max: 3.0m
+
+Running 30 steps...
+  Step  0: edges= 45, lambda2=9.006
+  Step 10: edges= 45, lambda2=8.763
+  Step 20: edges= 45, lambda2=8.365
+
+======================================================================
+TESTING: CENTRALIZED_MST
+======================================================================
+Method: CentralizedMST
+Robots: 10, R_max: 3.0m
+
+Running 30 steps...
+  Step  0: edges= 45, lambda2=9.006
+  Step 10: edges= 35, lambda2=3.696
+  Step 20: edges= 25, lambda2=2.067
+
+======================================================================
+TESTING: RANDOM
+======================================================================
+Method: RandomPruning
+Robots: 10, R_max: 3.0m
+
+Running 30 steps...
+  Step  0: edges= 45, lambda2=9.006
+  Step 10: edges= 44, lambda2=7.592
+  Step 20: edges= 43, lambda2=6.437
+
+======================================================================
+TESTING: GREEDY_DISTANCE
+======================================================================
+Method: GreedyDistance
+Robots: 10, R_max: 3.0m
+
+Running 30 steps...
+  Step  0: edges= 45, lambda2=9.006
+  Step 10: edges= 45, lambda2=8.763
+  Step 20: edges= 45, lambda2=8.365
+
+======================================================================
+COMPARISON SUMMARY
+======================================================================
+Method               Edges    Pruned   Lambda2  Status  
+----------------------------------------------------------------------
+hybrid               ERROR: 'charmap' codec can't encode characters in position 2-71: character maps to <undefined>
+full_graph           ERROR: 'charmap' codec can't encode characters in position 2-71: character maps to <undefined>
+centralized_mst      ERROR: 'charmap' codec can't encode characters in position 2-71: character maps to <undefined>
+random               ERROR: 'charmap' codec can't encode characters in position 2-71: character maps to <undefined>
+greedy_distance      ERROR: 'charmap' codec can't encode characters in position 2-71: character maps to <undefined>
+
+======================================================================

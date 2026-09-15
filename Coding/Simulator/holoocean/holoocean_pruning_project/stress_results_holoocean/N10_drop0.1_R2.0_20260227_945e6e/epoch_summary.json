@@ -1,0 +1,114 @@
+{
+  "parameters": {
+    "N": 10,
+    "root": 0,
+    "R_comm": 2.0,
+    "T_bcast": 1.0,
+    "jitter": 0.2,
+    "p_drop": 0.1,
+    "delay_max": 0.5,
+    "T_prune": 20.0,
+    "T_stable": 5.0,
+    "sigma_v": 0.05,
+    "seed": 42,
+    "viz_interval": 0.35,
+    "tag": null,
+    "flow_mode": "vortex",
+    "const_current": [
+      0.5,
+      0.0,
+      0.0
+    ],
+    "vortex_cx": 0.0,
+    "vortex_cy": 0.0,
+    "flow_strength_scale": 1.0,
+    "spawn_mode": "chain",
+    "spacing": 1.6,
+    "cluster_radius": 3.0,
+    "deg_root_max": 4,
+    "min_hops": 3,
+    "root_mode": "min_degree",
+    "goal": [
+      20.0,
+      0.0,
+      -5.0
+    ],
+    "goal_draw": true,
+    "edge_draw": true,
+    "draw_lifetime": 0.25,
+    "k_goal": 0.25,
+    "v_max": 0.6,
+    "alpha_cbf": 1.0,
+    "cbf_passes": 3,
+    "cbf_enable": true,
+    "thruster_gain": 35.0,
+    "thruster_clip": 35.0
+  },
+  "topology": {
+    "root": 0,
+    "deg_root": 1,
+    "max_hop_from_root": 9,
+    "init_edges": 9
+  },
+  "results": {
+    "duration_s": 11.567,
+    "pruned_edges": 9,
+    "connected": true,
+    "is_tree": true,
+    "reachable_from_root": 10,
+    "tx_msgs": 617,
+    "rx_msgs": 562,
+    "dropped_msgs": 55,
+    "tx_bytes": 3702,
+    "rx_bytes": 3372,
+    "tx_Bps": 320.1,
+    "rx_Bps": 291.5,
+    "observed_drop_rate": 0.0891,
+    "cbf_corrections": 0,
+    "final_mean_d2goal": 0.54,
+    "final_max_d2goal": 1.068
+  },
+  "node_state": {
+    "0": {
+      "delta": 0.0,
+      "parent": null
+    },
+    "1": {
+      "delta": 1,
+      "parent": 0
+    },
+    "2": {
+      "delta": 1,
+      "parent": 0
+    },
+    "3": {
+      "delta": 1,
+      "parent": 0
+    },
+    "4": {
+      "delta": 1,
+      "parent": 0
+    },
+    "5": {
+      "delta": 1,
+      "parent": 0
+    },
+    "6": {
+      "delta": 1,
+      "parent": 0
+    },
+    "7": {
+      "delta": 1,
+      "parent": 0
+    },
+    "8": {
+      "delta": 1,
+      "parent": 0
+    },
+    "9": {
+      "delta": 1,
+      "parent": 0
+    }
+  },
+  "timestamp": "2026-02-27T20:44:10.009114"
+}

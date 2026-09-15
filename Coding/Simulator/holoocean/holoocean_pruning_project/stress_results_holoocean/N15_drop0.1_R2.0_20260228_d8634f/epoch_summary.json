@@ -1,0 +1,136 @@
+{
+  "parameters": {
+    "N": 15,
+    "root": 0,
+    "R_comm": 2.0,
+    "T_bcast": 1.0,
+    "jitter": 0.2,
+    "p_drop": 0.1,
+    "delay_max": 0.5,
+    "T_prune": 20.0,
+    "T_stable": 5.0,
+    "sigma_v": 0.05,
+    "seed": 42,
+    "viz_interval": 0.35,
+    "tag": null,
+    "flow_mode": "vortex",
+    "const_current": [
+      0.5,
+      0.0,
+      0.0
+    ],
+    "vortex_cx": 0.0,
+    "vortex_cy": 0.0,
+    "flow_strength_scale": 1.0,
+    "spawn_mode": "chain",
+    "spacing": 1.6,
+    "cluster_radius": 3.0,
+    "deg_root_max": 4,
+    "min_hops": 3,
+    "root_mode": "min_degree",
+    "goal": [
+      20.0,
+      0.0,
+      -5.0
+    ],
+    "goal_draw": true,
+    "edge_draw": true,
+    "draw_lifetime": 0.25,
+    "k_goal": 2.0,
+    "v_max": 2.0,
+    "alpha_cbf": 1.0,
+    "d_safe": 1.5,
+    "alpha_safe": 2.0,
+    "cbf_passes": 3,
+    "cbf_enable": true,
+    "thruster_gain": 35.0,
+    "thruster_clip": 35.0
+  },
+  "topology": {
+    "root": 10,
+    "deg_root": 2,
+    "max_hop_from_root": 5,
+    "init_edges": 25
+  },
+  "results": {
+    "duration_s": 10.15,
+    "pruned_edges": 14,
+    "connected": true,
+    "is_tree": true,
+    "reachable_from_root": 15,
+    "tx_msgs": 605,
+    "rx_msgs": 547,
+    "dropped_msgs": 58,
+    "tx_bytes": 3630,
+    "rx_bytes": 3282,
+    "tx_Bps": 357.6,
+    "rx_Bps": 323.3,
+    "observed_drop_rate": 0.0959,
+    "cbf_corrections": 45986,
+    "final_mean_d2goal": 1.672,
+    "final_max_d2goal": 2.194
+  },
+  "node_state": {
+    "0": {
+      "delta": 1,
+      "parent": 10
+    },
+    "1": {
+      "delta": 2,
+      "parent": 0
+    },
+    "2": {
+      "delta": 1,
+      "parent": 10
+    },
+    "3": {
+      "delta": 2,
+      "parent": 2
+    },
+    "4": {
+      "delta": 2,
+      "parent": 0
+    },
+    "5": {
+      "delta": 2,
+      "parent": 8
+    },
+    "6": {
+      "delta": 2,
+      "parent": 2
+    },
+    "7": {
+      "delta": 1,
+      "parent": 10
+    },
+    "8": {
+      "delta": 1,
+      "parent": 10
+    },
+    "9": {
+      "delta": 2,
+      "parent": 0
+    },
+    "10": {
+      "delta": 0.0,
+      "parent": null
+    },
+    "11": {
+      "delta": 2,
+      "parent": 7
+    },
+    "12": {
+      "delta": 1,
+      "parent": 10
+    },
+    "13": {
+      "delta": 2,
+      "parent": 8
+    },
+    "14": {
+      "delta": 1,
+      "parent": 10
+    }
+  },
+  "timestamp": "2026-02-28T18:23:58.254114"
+}

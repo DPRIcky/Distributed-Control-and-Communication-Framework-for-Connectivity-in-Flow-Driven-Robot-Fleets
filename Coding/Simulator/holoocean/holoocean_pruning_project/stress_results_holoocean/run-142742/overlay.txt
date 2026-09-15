@@ -1,0 +1,1 @@
+t=20.0 | TREE=1 | T_tree=3.8 s | E_disk=67 E_tree=19 pruned=48 reach=20/20 | TX=1885 RX=1719 drop=166 rate=8.81% | TX_Bps=727.7 RX_Bps=784.3 | q_p95_ms=33.3 | model=iid

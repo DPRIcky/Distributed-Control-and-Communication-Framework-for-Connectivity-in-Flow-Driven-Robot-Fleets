@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(cd /Users/prajj/OneDrive - Arizona State University/ASU/PhD/Research/Coding/Simulator/holoocean/holoocean sequential pruning)"
+    ]
+  }
+}

@@ -1,0 +1,365 @@
+%--------------------
+% Packages
+% -------------------
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage{gentium}
+\usepackage{mathptmx} % Use Times Font
+
+
+\usepackage[pdftex]{graphicx} % Required for including pictures
+\usepackage[swedish]{babel} % Swedish translations
+\usepackage[pdftex,linkcolor=black,pdfborder={0 0 0}]{hyperref} % Format links for pdf
+\usepackage{calc} % To reset the counter in the document after title page
+\usepackage{enumitem} % Includes lists
+
+\frenchspacing % No double spacing between sentences
+\linespread{1.2} % Set linespace
+\usepackage[a4paper, lmargin=0.1666\paperwidth, rmargin=0.1666\paperwidth, tmargin=0.1111\paperheight, bmargin=0.1111\paperheight]{geometry} %margins
+%\usepackage{parskip}
+
+\usepackage[all]{nowidow} % Tries to remove widows
+\usepackage[protrusion=true,expansion=true]{microtype} % Improves typography, load after fontpackage is selected
+
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+
+
+%-----------------------
+% Set pdf information and add title, fill in the fields
+%-----------------------
+\hypersetup{
+pdfsubject = {},
+pdftitle = {},
+pdfauthor = {}
+}
+
+%-----------------------
+% Begin document
+%-----------------------
+\begin{document} %All text i dokumentet hamnar mellan dessa taggar, allt ovanför är formatering av dokumentet
+
+% Title Block
+\title{Decentralised delta and Sequential Pruning}
+\author{Prajjwal Dutta}
+\date{\today}
+\maketitle
+
+% Course/Research Group and Semester info
+\textbf{Research Group:} AMASS LAB \\
+\textbf{Semester:} Spring,2026 \\
+\vspace{1em}
+
+\section{Introduction}
+
+The semester work focused on communication-aware topology management for underwater multi-agent systems in HoloOcean. In this setting, each robot must coordinate with nearby robots while operating in a communication environment that is low-bandwidth, lossy, delayed, and sometimes bursty. These constraints make many conventional graph-maintenance methods unrealistic because they assume either reliable links or \(O(n)\)-scale communication.
+
+The solution pursued in this workspace was to use a communication-feasible distributed pruning protocol based on scalar hop-distance propagation. Instead of exchanging full distance vectors, each robot broadcasts only its current hop distance to the root, which keeps message size constant and matches underwater acoustic communication constraints much better. After this baseline was established and tested inside the HoloOcean workflow, the work was extended into sequential pruning so that parent changes could be committed more conservatively and with reduced topological flapping.
+
+\section{Project Goals}
+
+The semester objectives recovered from the workspace were:
+\begin{enumerate}
+  \item Build a communication-feasible pruning algorithm suitable for underwater multi-agent simulation.
+  \item Integrate the pruning workflow into HoloOcean experiments and generate repeatable evaluation scripts.
+  \item Evaluate robustness under multiple communication models, including IID loss, bursty loss, bandwidth caps, and distance-dependent impairment.
+  \item Improve parent selection and visualization so the tree dynamics are interpretable and stable.
+  \item Extend the baseline into sequential pruning with committed topology, grace periods, and delayed deletion.
+\end{enumerate}
+
+\section{Workspace Structure and Recovered Scope}
+
+The work in the repository is split across two main directories:
+
+\begin{itemize}
+  \item \texttt{holoocean\_pruning\_project/}: the structured HoloOcean pruning project, including the installable \texttt{pruning} package, experiment runners, sweep scripts, notes, figures, and result tables.
+  \item \texttt{holoocean sequential pruning/}: the later standalone sequential-pruning workspace, including the updated algorithm and deterministic verification scripts for grace-period and delete-candidate behavior.
+\end{itemize}
+
+This separation is important. The HoloOcean experiment runner imports the package in \texttt{holoocean\_pruning\_project/pruning/}, which implements the communication-feasible \(\delta\)-BFS pruning baseline. The standalone sequential-pruning directory contains the next-stage extension that adds committed-parent logic and edge-state management, but its own README explicitly describes HoloOcean integration as the next step rather than already completed.
+
+\section{Technical Work Completed}
+
+\subsection{Communication-Feasible Pruning Baseline}
+
+The core baseline algorithm implemented in the pruning project is a distributed spanning-tree pruning method that uses only scalar hop-distance propagation. Each message contains only \((\textit{sender\_id}, \delta_{to\_root}, \textit{seq})\) and therefore remains constant-size at 6 bytes. This is the key design decision that makes the method realistic for underwater communication.
+
+The pruning baseline keeps the following properties:
+\begin{itemize}
+  \item \(O(1)\) message payload.
+  \item asynchronous operation with per-node broadcasts and jitter,
+  \item configurable packet loss and delay,
+  \item bandwidth accounting for attempted versus delivered traffic,
+  \item spanning-tree extraction using locally chosen parent pointers.
+\end{itemize}
+
+At the same time, communication-infeasible phases from earlier formulations were intentionally removed. In particular, connectivity-assurance and robustness-enhancement phases that would require \(O(n)\) vectors or all-pairs information were excluded from the simulator-facing implementation.
+
+\subsection{HoloOcean Integration and Experiment Infrastructure}
+
+The project was organized into a reusable HoloOcean experiment package. The workspace includes:
+\begin{itemize}
+  \item editable package setup through \texttt{pyproject.toml},
+  \item HoloOcean runner scripts in \texttt{holoocean\_runs/},
+  \item plotting utilities for publication-style figures,
+  \item sweep scripts for parameter studies,
+  \item result reconstruction utilities,
+  \item notes documenting each iteration and validation step.
+\end{itemize}
+
+Two HoloOcean-facing control scripts were also prepared:
+\begin{itemize}
+  \item \texttt{keyboard\_control.py} for manual multi-agent control and visualization,
+  \item \texttt{autonomous\_control.py} for scripted multi-agent motion with obstacle-aware spawning, goals, and trajectory tracking.
+\end{itemize}
+
+The main experimental driver became \texttt{holoocean\_runs/run\_pruning\_epoch.py}, which accumulated most of the semester's simulator-side features: channel models, rate caps, queueing, tiebreak policies, diagnostics, visualization, and logging.
+
+\subsection{Bursty Gilbert-Elliott Channel Modeling}
+
+One major extension was the addition of a Gilbert-Elliott burst-loss model to capture clustered communication failures. This model uses a two-state Markov chain per directed link:
+\begin{itemize}
+  \item a GOOD state with low packet-drop probability,
+  \item a BAD state with high packet-drop probability,
+  \item transition probabilities defined per send attempt.
+\end{itemize}
+
+This is an important improvement over IID loss because underwater channels often fail in bursts rather than as independent events. The project also added diagnostics to compare expected and observed burst statistics, along with figures showing burst-length CCDFs and drop-event rasters.
+
+The validation notes show the intended effect clearly: under IID loss, the maximum consecutive-drop run was only 2 in the reference diagnostic, while the GE model produced a maximum run of 13. That confirmed that the implementation was generating clustered failures rather than just increasing average loss.
+
+\subsection{Parent Selection, Hysteresis, and Visualization Improvements}
+
+The work also improved how parents are chosen during tree formation. An ID-based tie-break policy caused the tree to collapse into an unrealistic star centered around the lowest-ID attractive node. This was corrected by adding a distance-based tie-break mode, with optional hysteresis so that a new parent must remain better for multiple comparisons before a switch occurs.
+
+This change mattered because it made the resulting topology physically meaningful. The notes document a before/after comparison in which the ID-biased version produced a star, whereas the distance-based version produced a multi-depth tree with a more natural relay structure.
+
+Visualization and debugging were also strengthened through:
+\begin{itemize}
+  \item live matplotlib updates during simulation,
+  \item clearer termination logging,
+  \item explicit distinction between building edges and committed tree edges in the plots.
+\end{itemize}
+
+These changes made the protocol behavior much easier to inspect and debug at scale.
+
+\subsection{Bandwidth Cap and Queueing Model}
+
+The next major step was adding a per-robot transmit-rate cap with FIFO queues. This enabled direct study of how little bandwidth the pruning protocol actually needs.
+
+The queueing model introduced:
+\begin{itemize}
+  \item per-robot transmit budgets in bits per second,
+  \item FIFO message queues,
+  \item overflow policies,
+  \item queue delay metrics,
+  \item sweep scripts to study convergence against bandwidth.
+\end{itemize}
+
+This part of the project is especially important because it connects the abstract communication-feasible claim to quantitative performance limits.
+
+\subsection{Distance-Dependent Impairment Model}
+
+The simulator was then extended again with a distance-dependent drop model:
+
+\[
+p_{drop_eff}(d) = \mathit{clip}(p_0 + k \cdot (d / R_{comm})^\alpha, 0, p_{max})
+\]
+
+This model captures the fact that links near the communication radius should be less reliable than close-range links. Weak and strong impairment profiles were added, and a three-condition simulation study was performed for \(N = 20\) across five random seeds.
+
+\subsection{Sequential Pruning Extension}
+
+After the HoloOcean pruning baseline and channel studies were in place, the work advanced into a standalone sequential-pruning phase. This extension added state needed to distinguish the unstable candidate topology from a more conservative committed topology.
+
+The sequential-pruning version introduced the following new per-node concepts:
+\begin{itemize}
+  \item \textit{committed\_parent},
+  \item \textit{backup\_parent},
+  \item per-neighbor \textit{edge\_status},
+  \item \textit{delete\_counter},
+  \item \textit{grace\_counter},
+  \item \textit{last\_heard\_time},
+  \item \textit{last\_candidate}.
+\end{itemize}
+
+The sequential policy then used these fields to implement:
+\begin{itemize}
+  \item committed-versus-candidate parent separation,
+  \item backup-parent selection,
+  \item grace-period retention when parent changes are detected,
+  \item delayed deletion through a \textit{DELETE\_CANDIDATE} state,
+  \item construction of the spanning tree from committed parents rather than directly from fast-changing candidates.
+\end{itemize}
+
+This was a meaningful algorithmic step beyond baseline \(\delta\)-BFS because it targets a common practical problem: rapid parent switching under noisy or borderline communication conditions.
+
+\section{Experimental Results}
+
+\subsection{GE Bursty-Loss Characterization}
+
+The workspace includes publication-ready channel figures in \texttt{holoocean\_pruning\_project/figures/}. The GE channel study demonstrated that bursty-loss behavior was correctly reproduced and measurably different from IID loss. The strongest GE profile showed heavy-tailed burst lengths and long consecutive-drop runs, which is precisely the kind of impairment the pruning protocol must tolerate underwater.
+
+\begin{figure}[htbp]
+  \centering
+  % Placeholder for GE channel figure - user can replace with actual figure
+  \fbox{\parbox{0.8\linewidth}{\centering GE Channel Burst Characterization\\ (Replace with actual figure)}}
+  \caption{GE channel burst characterization}
+  \label{fig:ge_channel}
+\end{figure}
+
+\subsection{Rate-Cap Sweep: Main Quantitative Result}
+
+The strongest semester result is the rate-cap sweep for \(N = 10\) and \(N = 20\). These experiments measured whether the protocol could still form a valid spanning tree when each robot was assigned a strict transmit budget.
+
+The recovered summary table from the workspace is:
+
+\begin{table}[htbp]
+  \centering
+  \caption{Rate-cap sweep results}
+  \label{tab:rate_cap}
+  \begin{tabular}{|c|c|l|c|c|c|c|c|}
+    \hline
+    N & Cap (bps) & Description & Runs & Success & \(t_{tree}\) (s) & Delay p95 (ms) & rx (B/s) \\
+    \hline
+    10 & inf & No limit & 10 & 1.00 & 2.9 +/- 0.2 & 0 & 185 \\
+    10 & 250 & High cap & 10 & 1.00 & 4.3 +/- 0.1 & 2135 +/- 359 & 169 \\
+    10 & 48 & 2x above breakpoint & 3 & 1.00 & 11.5 +/- 0.7 & 12483 +/- 1336 & 38 \\
+    10 & 30 & Above breakpoint & 3 & 1.00 & 18.0 +/- 2.0 & 15094 +/- 2288 & 18 \\
+    10 & 18 & Near breakpoint (partial) & 3 & 0.67 & 27.8 +/- 1.4 & 20700 +/- 317 & 10 \\
+    10 & 12 & Below breakpoint (failure) & 3 & 0.00 & - & 22939 +/- 664 & 3 \\
+    \hline
+    20 & inf & No limit & 3 & 1.00 & 3.0 +/- 0.1 & 0 & 546 \\
+    20 & 250 & High cap & 3 & 1.00 & 5.0 +/- 0.1 & 4717 +/- 274 & 405 \\
+    20 & 48 & 2x above breakpoint & 3 & 1.00 & 15.0 +/- 0.5 & 15261 +/- 1891 & 67 \\
+    20 & 30 & Above breakpoint & 3 & 1.00 & 20.6 +/- 0.8 & 19439 +/- 679 & 38 \\
+    20 & 24 & Near breakpoint (first success) & 3 & 1.00 & 27.2 +/- 0.9 & 20317 +/- 584 & 27 \\
+    20 & 18 & Below breakpoint (failure) & 3 & 0.00 & - & 20933 +/- 591 & 13 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+These results support several conclusions:
+\begin{enumerate}
+  \item The protocol is highly bandwidth-efficient.
+  \item Convergence remains possible at extremely small per-robot rates.
+  \item The breakpoint scales only weakly with swarm size.
+  \item Delay rises dramatically near the breakpoint, but correctness is retained until the cap becomes too small.
+\end{enumerate}
+
+For \(N = 10\), the critical region was approximately \(12-18\) bps, with a marginal zone at \(18-24\) bps. For \(N = 20\), the breakpoint shifted to approximately \(18-24\) bps and appeared as a sharper transition. The practical interpretation is that the protocol is constrained more by each robot's ability to get enough fresh parent-related updates than by raw total network traffic.
+
+\begin{figure}[htbp]
+  \centering
+  % Placeholder for rate-cap sweep figure - user can replace with actual figure
+  \fbox{\parbox{0.8\linewidth}{\centering Rate-cap Sweep Figure\\ (Replace with actual figure)}}
+  \caption{Rate-cap sweep figure}
+  \label{fig:rate_cap}
+\end{figure}
+
+\subsection{Distance-Dependent Impairment Study}
+
+The distance-dependent impairment study evaluated whether tree formation remains reliable when long links are more likely to fail. Three conditions were tested for \(N = 20\): baseline, weak impairment, and strong impairment. Each condition used five seeds.
+
+The recovered aggregate results are:
+
+\begin{table}[htbp]
+  \centering
+  \caption{Distance-dependent impairment study results}
+  \label{tab:distance_impairment}
+  \begin{tabular}{|l|c|c|c|c|c|c|}
+    \hline
+    Condition & Success & \(t_{tree_first}\) (s) & \(t_{tree_stable}\) (s) & rx\_Bps & Observed drop rate & Mean effective drop \\
+    \hline
+    Baseline & 5/5 & 3.10 +/- 0.22 & 17.68 +/- 4.79 & 539 & 9.9\% & 10.0\% \\
+    Weak & 5/5 & 3.74 +/- 0.49 & 20.74 +/- 5.74 & 444 & 24.5\% & 24.97\% \\
+    Strong & 5/5 & 7.64 +/- 1.20 & 22.03 +/- 1.76 & 212 & 62.9\% & 62.37\% \\
+    \hline
+  \end{tabular}
+\end{table}
+
+This was a strong robustness result. Even under the strong profile, where effective loss exceeded 60\%, the protocol still converged in every trial. The main cost was slower initial tree formation and lower received throughput. In other words, the channel impairment reduced efficiency, but it did not break correctness over the tested horizon.
+
+\begin{figure}[htbp]
+  \centering
+  % Placeholder for distance-dependent impairment figure - user can replace with actual figure
+  \fbox{\parbox{0.8\linewidth}{\centering Distance-dependent Impairment Comparison\\ (Replace with actual figure)}}
+  \caption{Distance-dependent impairment comparison}
+  \label{fig:distance_impairment}
+\end{figure}
+
+\subsection{Sequential-Pruning Verification}
+
+The sequential-pruning work was verified through lightweight deterministic scripts in the standalone workspace. These scripts confirmed that:
+\begin{itemize}
+  \item phase-2 state extension was added correctly,
+  \item grace-period logic keeps the old committed parent during the grace window,
+  \item delayed deletion keeps an edge in \textit{DELETE\_CANDIDATE} before fully removing it,
+  \item committed-parent edges are used consistently in the maintained topology.
+\end{itemize}
+
+During this review, the following verification scripts were executed successfully:
+\begin{itemize}
+  \item \texttt{holoocean sequential pruning/verify\_phase2.py}
+  \item \texttt{holoocean sequential pruning/verify\_grace\_deterministic.py}
+  \item \texttt{holoocean sequential pruning/verify\_delete\_candidate\_deterministic.py}
+\end{itemize}
+
+This means the sequential-pruning mechanics are not only described in the README but also exercised by explicit deterministic checks.
+
+\section{Key Contributions of the Semester}
+
+The work completed over the semester can be summarized as the following concrete contributions:
+\begin{enumerate}
+  \item Built a communication-feasible \(\delta\)-BFS pruning baseline with constant-size messages suitable for underwater communication constraints.
+  \item Integrated that pruning workflow into a reusable HoloOcean experiment package with runners, sweeps, plots, and result summaries.
+  \item Added a Gilbert-Elliott burst-loss model and validated its clustering behavior.
+  \item Fixed parent-selection artifacts through distance-based tie-breaking and hysteresis.
+  \item Added live visualization and improved termination/debug instrumentation.
+  \item Implemented per-robot transmit-rate caps and FIFO queues to quantify the bandwidth breakpoint for successful tree formation.
+  \item Added a distance-dependent impairment model and showed 100\% convergence in all tested \(N = 20\) trials, even under strong degradation.
+  \item Developed a standalone sequential-pruning extension with committed parents, backup parents, grace periods, and delayed edge deletion.
+  \item Added deterministic verification scripts for the most important sequential-pruning state transitions.
+\end{enumerate}
+
+\section{Challenges and Lessons Learned}
+
+Several engineering lessons are documented directly in the workspace notes:
+\begin{itemize}
+  \item simple tie-break rules can create unrealistic tree topologies,
+  \item early stopping can bias channel-model statistics,
+  \item per-link statistics become sparse quickly in short runs,
+  \item live plotting in Python scripts requires explicit GUI event-loop handling,
+  \item result sweeps need validation against raw JSON outputs to avoid silent data loss,
+  \item queue-delay metrics and bandwidth limits must be interpreted per robot, not just globally.
+\end{itemize}
+
+More broadly, the semester work showed that communication realism is not a minor detail. Loss models, queueing, and rate caps directly change how fast the tree forms and whether it forms at all. This justified the shift from a purely algorithmic baseline toward a simulator-backed study with explicit channel models.
+
+\section{Limitations}
+
+The workspace also makes the current boundaries of the project clear.
+\begin{enumerate}
+  \item First, the HoloOcean experiment pipeline is centered on the baseline pruning package, while the sequential-pruning logic currently lives in a separate standalone directory. That means the committed-topology logic has been implemented and verified, but not yet fully merged into the main HoloOcean runner used for the large sweeps.
+  \item Second, the sequential-pruning validation is currently strongest at the unit and deterministic-transition level. Large-scale comparative sweeps for the sequential version are still a natural next step.
+  \item Third, some of the notes mention tooling issues such as plotting-related non-zero exit codes during sweep automation. These were mitigated through CSV reconstruction and plotting fixes, but they still illustrate the need for careful post-run auditing.
+\end{enumerate}
+
+\section{Next Steps}
+
+The most logical next steps after this semester are:
+\begin{enumerate}
+  \item integrate the sequential-pruning implementation into \texttt{holoocean\_pruning\_project/holoocean\_runs/run\_pruning\_epoch.py},
+  \item rerun the main HoloOcean sweeps with committed-parent logic enabled,
+  \item compare baseline \(\delta\)-BFS and sequential pruning on parent flapping, convergence time, and maintained-edge stability,
+  \item study parameter sensitivity for grace period \(G\), delete threshold \(H\), and backup-parent policies,
+  \item connect the pruned/committed topology directly to downstream CLF-CBF multi-robot control experiments.
+\end{enumerate}
+
+\section{Conclusion}
+
+The semester produced a solid and technically coherent body of work. The baseline pruning project demonstrated that a communication-feasible \(\delta\)-BFS spanning-tree protocol can be implemented, instrumented, and evaluated in HoloOcean under realistic communication constraints. The experimental results showed that the method is robust to bursty loss, strong distance-dependent impairment, and extremely low per-robot bandwidth. On top of that, the later sequential-pruning extension addressed an important practical weakness of the baseline by introducing a committed topology with hysteresis-like behavior through grace periods and delayed deletion.
+
+Taken together, the work establishes both a validated baseline and a credible next-stage extension. The baseline answers the question of whether pruning can be made communication-feasible in HoloOcean. The sequential extension answers how that baseline can be made more stable and deployment-oriented. This makes the semester's work a strong foundation for the next phase of integrated multi-agent underwater coordination research.
+
+\end{document}

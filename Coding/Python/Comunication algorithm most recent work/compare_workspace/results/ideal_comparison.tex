@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+  \centering
+  \caption{IDEAL-communication comparison: $\delta$-BFS vs.\ Adjacency Consensus}
+  \label{tab:ideal-comparison}
+  \begin{tabular}{ll rrrr}
+    \toprule
+    $N$ & Method & Success (\%) & Conv.\ time (s) & Payload (B/s) & Final edges \\
+    \midrule
+    10 & $\delta$-BFS & 100 & $5.58 \pm 0.24$ & $477 \pm 28$ & 9.0 \\
+    10 & Adj-Consensus & 100 & $71.92 \pm 36.40$ & $25454 \pm 2341$ & 16.6 \\
+    \midrule
+    20 & $\delta$-BFS & 100 & $5.58 \pm 0.24$ & $2011 \pm 104$ & 19.0 \\
+    20 & Adj-Consensus & 100 & $205.16 \pm 31.69$ & $312355 \pm 79351$ & 56.9 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

@@ -1,15 +1,27 @@
-# Large binaries are intentionally not tracked
-*.mp4
-*.mov
-*.avi
-*.mkv
-*.pdf
-*.pptx
-*.docx
-*.zip
+# Large media and binaries are kept out of the repo (>10 MB files were never added)
+*.exe
+*.msi
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.fls
+*.blg
+*.fdb_latexmk
+*.synctex.gz
 
 # OS / editor
 .DS_Store
 Thumbs.db
 desktop.ini
-.vscode/
+*.swp
+tmpclaude-*

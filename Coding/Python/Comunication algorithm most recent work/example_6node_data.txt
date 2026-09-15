@@ -1,0 +1,38 @@
+=======================================================
+Example 6-node data used in phases_2x2_delta_bfs.png
+=======================================================
+
+1) Edge list E  (|E| = 8):
+   (1, 2)
+   (1, 3)
+   (2, 3)
+   (2, 4)
+   (3, 5)
+   (4, 5)
+   (4, 6)
+   (5, 6)
+
+2) Root r = 1
+
+3) Hop-to-root distances delta_i:
+   node 1: delta = 0
+   node 2: delta = 1
+   node 3: delta = 1
+   node 4: delta = 2
+   node 5: delta = 2
+   node 6: delta = 3
+
+4) Parent pointers p(i)  (i != root):
+   p(2) = 1
+   p(3) = 1
+   p(4) = 2
+   p(5) = 3
+   p(6) = 4
+
+5) Tree edge set E_topo  (|E_topo| = 5 = n-1 = 5):
+   (1, 2)
+   (1, 3)
+   (2, 4)
+   (3, 5)
+   (4, 6)
+

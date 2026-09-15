@@ -1,0 +1,202 @@
+[
+  {
+    "scenario": "Scenario A: Baseline",
+    "method": "FullyConnected",
+    "num_seeds": 2,
+    "initial_edges": 17.0,
+    "final_edges": 17.0,
+    "edge_reduction_pct": 0.0,
+    "pruning_events": 0.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario A: Baseline",
+    "method": "CentralizedMST",
+    "num_seeds": 2,
+    "initial_edges": 17.0,
+    "final_edges": 9.0,
+    "edge_reduction_pct": 43.956043956043956,
+    "pruning_events": 8.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario A: Baseline",
+    "method": "AdjacencyConsensus",
+    "num_seeds": 2,
+    "initial_edges": 17.0,
+    "final_edges": 13.0,
+    "edge_reduction_pct": 19.047619047619047,
+    "pruning_events": 4.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario A: Baseline",
+    "method": "DistributedPruning",
+    "num_seeds": 2,
+    "initial_edges": 17.0,
+    "final_edges": 10.0,
+    "edge_reduction_pct": 37.72893772893773,
+    "pruning_events": 7.0,
+    "runtime": 0.004489541053771973
+  },
+  {
+    "scenario": "Scenario B: Dense Network",
+    "method": "FullyConnected",
+    "num_seeds": 2,
+    "initial_edges": 20.5,
+    "final_edges": 20.5,
+    "edge_reduction_pct": 0.0,
+    "pruning_events": 0.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario B: Dense Network",
+    "method": "CentralizedMST",
+    "num_seeds": 2,
+    "initial_edges": 20.5,
+    "final_edges": 11.0,
+    "edge_reduction_pct": 46.05263157894737,
+    "pruning_events": 9.5,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario B: Dense Network",
+    "method": "AdjacencyConsensus",
+    "num_seeds": 2,
+    "initial_edges": 20.5,
+    "final_edges": 16.0,
+    "edge_reduction_pct": 21.5311004784689,
+    "pruning_events": 4.5,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario B: Dense Network",
+    "method": "DistributedPruning",
+    "num_seeds": 2,
+    "initial_edges": 20.5,
+    "final_edges": 12.0,
+    "edge_reduction_pct": 41.14832535885168,
+    "pruning_events": 8.5,
+    "runtime": 0.006273865699768066
+  },
+  {
+    "scenario": "Scenario C: Sparse Network",
+    "method": "FullyConnected",
+    "num_seeds": 2,
+    "initial_edges": 12.5,
+    "final_edges": 12.5,
+    "edge_reduction_pct": 0.0,
+    "pruning_events": 0.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario C: Sparse Network",
+    "method": "CentralizedMST",
+    "num_seeds": 2,
+    "initial_edges": 12.5,
+    "final_edges": 7.0,
+    "edge_reduction_pct": 41.66666666666667,
+    "pruning_events": 5.5,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario C: Sparse Network",
+    "method": "AdjacencyConsensus",
+    "num_seeds": 2,
+    "initial_edges": 12.5,
+    "final_edges": 10.0,
+    "edge_reduction_pct": 16.666666666666668,
+    "pruning_events": 2.5,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario C: Sparse Network",
+    "method": "DistributedPruning",
+    "num_seeds": 2,
+    "initial_edges": 12.5,
+    "final_edges": 8.0,
+    "edge_reduction_pct": 33.33333333333333,
+    "pruning_events": 4.5,
+    "runtime": 0.0025022029876708984
+  },
+  {
+    "scenario": "Scenario D: Large Network",
+    "method": "FullyConnected",
+    "num_seeds": 2,
+    "initial_edges": 39.0,
+    "final_edges": 39.0,
+    "edge_reduction_pct": 0.0,
+    "pruning_events": 0.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario D: Large Network",
+    "method": "CentralizedMST",
+    "num_seeds": 2,
+    "initial_edges": 39.0,
+    "final_edges": 14.0,
+    "edge_reduction_pct": 64.1025641025641,
+    "pruning_events": 25.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario D: Large Network",
+    "method": "AdjacencyConsensus",
+    "num_seeds": 2,
+    "initial_edges": 39.0,
+    "final_edges": 21.0,
+    "edge_reduction_pct": 46.15384615384615,
+    "pruning_events": 18.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario D: Large Network",
+    "method": "DistributedPruning",
+    "num_seeds": 2,
+    "initial_edges": 39.0,
+    "final_edges": 15.0,
+    "edge_reduction_pct": 61.53846153846154,
+    "pruning_events": 24.0,
+    "runtime": 0.015204429626464844
+  },
+  {
+    "scenario": "Scenario E: Very Dense",
+    "method": "FullyConnected",
+    "num_seeds": 2,
+    "initial_edges": 20.0,
+    "final_edges": 20.0,
+    "edge_reduction_pct": 0.0,
+    "pruning_events": 0.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario E: Very Dense",
+    "method": "CentralizedMST",
+    "num_seeds": 2,
+    "initial_edges": 20.0,
+    "final_edges": 9.0,
+    "edge_reduction_pct": 53.125,
+    "pruning_events": 11.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario E: Very Dense",
+    "method": "AdjacencyConsensus",
+    "num_seeds": 2,
+    "initial_edges": 20.0,
+    "final_edges": 13.0,
+    "edge_reduction_pct": 32.29166666666667,
+    "pruning_events": 7.0,
+    "runtime": 0.0
+  },
+  {
+    "scenario": "Scenario E: Very Dense",
+    "method": "DistributedPruning",
+    "num_seeds": 2,
+    "initial_edges": 20.0,
+    "final_edges": 10.0,
+    "edge_reduction_pct": 47.916666666666664,
+    "pruning_events": 10.0,
+    "runtime": 0.0070269107818603516
+  }
+]

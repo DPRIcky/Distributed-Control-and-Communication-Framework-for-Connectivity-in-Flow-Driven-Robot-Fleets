@@ -1,0 +1,62 @@
+================================================================================
+EXPERIMENT SUMMARY STATISTICS
+================================================================================
+
+
+Concurrent Pruning (Proposed)
+--------------------------------------------------------------------------------
+Overall Success Rate: 98.0%
+Average Edge Reduction: 66.04% ± 27.17%
+Average Min λ₂: 0.7276 ± 1.1044
+Average Runtime: 3.73s ± 4.95s
+
+By Scenario:
+  A (Baseline): Success=10/10, Edges=57.1%, λ₂=1.148
+  B (Large Timestep): Success=10/10, Edges=64.0%, λ₂=0.680
+  C (Tight Radius): Success=10/10, Edges=74.2%, λ₂=0.291
+  D (High Robot Count): Success=10/10, Edges=64.3%, λ₂=1.188
+  E (Extreme Parameters): Success=9/10, Edges=71.0%, λ₂=0.287
+
+Adjacency Consensus
+--------------------------------------------------------------------------------
+Overall Success Rate: 98.0%
+Average Edge Reduction: 67.20% ± 15.47%
+Average Min λ₂: 0.8297 ± 0.9205
+Average Runtime: 12.91s ± 17.68s
+
+By Scenario:
+  A (Baseline): Success=10/10, Edges=74.7%, λ₂=0.258
+  B (Large Timestep): Success=10/10, Edges=55.6%, λ₂=1.082
+  C (Tight Radius): Success=10/10, Edges=80.0%, λ₂=0.177
+  D (High Robot Count): Success=10/10, Edges=44.1%, λ₂=2.415
+  E (Extreme Parameters): Success=9/10, Edges=83.3%, λ₂=0.147
+
+Full Graph (No Pruning)
+--------------------------------------------------------------------------------
+Overall Success Rate: 98.0%
+Average Edge Reduction: 25.48% ± 20.18%
+Average Min λ₂: 2.0786 ± 1.1935
+Average Runtime: 1.33s ± 0.77s
+
+By Scenario:
+  A (Baseline): Success=10/10, Edges=6.4%, λ₂=3.202
+  B (Large Timestep): Success=10/10, Edges=0.0%, λ₂=2.733
+  C (Tight Radius): Success=10/10, Edges=51.6%, λ₂=0.776
+  D (High Robot Count): Success=10/10, Edges=28.2%, λ₂=2.830
+  E (Extreme Parameters): Success=9/10, Edges=42.9%, λ₂=0.716
+
+Centralized MST
+--------------------------------------------------------------------------------
+Overall Success Rate: 92.0%
+Average Edge Reduction: 80.57% ± 4.24%
+Average Min λ₂: 0.1500 ± 0.0727
+Average Runtime: 1.00s ± 0.62s
+
+By Scenario:
+  A (Baseline): Success=10/10, Edges=77.8%, λ₂=0.153
+  B (Large Timestep): Success=10/10, Edges=77.8%, λ₂=0.211
+  C (Tight Radius): Success=10/10, Edges=78.4%, λ₂=0.116
+  D (High Robot Count): Success=10/10, Edges=88.4%, λ₂=0.120
+  E (Extreme Parameters): Success=6/10, Edges=80.3%, λ₂=0.151
+
+================================================================================

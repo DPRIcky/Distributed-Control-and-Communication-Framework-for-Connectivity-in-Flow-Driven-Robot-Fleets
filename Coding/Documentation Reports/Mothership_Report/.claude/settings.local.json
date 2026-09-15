@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pdflatex -interaction=nonstopmode main.tex)",
+      "Bash(pandoc:*)",
+      "Bash(winget install:*)",
+      "Bash(\"/c/Users/prajj/AppData/Local/Pandoc/pandoc.exe\" --version)",
+      "Bash(\"/c/Users/prajj/AppData/Local/Pandoc/pandoc.exe\" \"C:\\\\Users\\\\prajj\\\\OneDrive - Arizona State University\\\\ASU\\\\PhD\\\\Research\\\\Coding\\\\Documentation Reports\\\\Mothership_Report\\\\SEMESTER_REPORT_MOTHERSHIP.md\" -o \"C:\\\\Users\\\\prajj\\\\OneDrive - Arizona State University\\\\ASU\\\\PhD\\\\Research\\\\Coding\\\\Documentation Reports\\\\Mothership_Report\\\\SEMESTER_REPORT_MOTHERSHIP.pdf\" --pdf-engine=pdflatex)"
+    ]
+  }
+}

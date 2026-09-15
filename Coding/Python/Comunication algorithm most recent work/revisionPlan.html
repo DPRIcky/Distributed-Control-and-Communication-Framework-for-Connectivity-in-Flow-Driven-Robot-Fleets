@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASU ACC 2026 Revision Plan</title>
+    <style>
+        :root {
+            /* ASU Official Brand Colors */
+            --asu-maroon: #8C1D40;
+            --asu-gold: #FFC627;
+            --asu-black: #000000;
+            --asu-white: #FFFFFF;
+            --asu-gray: #747474;
+            --asu-light-gray: #E8E8E8;
+            
+            --primary: var(--asu-maroon);
+            --secondary: var(--asu-gold);
+            --accent: #00A3E0; /* ASU Blue for links/highlights */
+            --text: #191919;
+            --bg: #F0F0F0;
+            --slide-bg: var(--asu-white);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Arial Unicode MS', 'Arial', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* Presentation Container */
+        #presentation {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Slide Styles */
+        .slide {
+            background-color: var(--slide-bg);
+            width: 90%;
+            max-width: 1100px;
+            aspect-ratio: 16/9;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border-top: 8px solid var(--asu-gold);
+            padding: 50px 70px;
+            box-sizing: border-box;
+            position: absolute;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: all;
+            z-index: 10;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+        /* ASU Header Accent */
+        .slide::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 8px;
+            background-color: var(--asu-maroon);
+        }
+
+        /* Typography */
+        h1 {
+            color: var(--asu-maroon);
+            font-size: 2.8rem;
+            margin-bottom: 0.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .title-underline {
+            width: 80px;
+            height: 6px;
+            background-color: var(--asu-gold);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: var(--asu-maroon);
+            font-size: 1.8rem;
+            margin-top: 0;
+            font-weight: 400;
+        }
+
+        h3 {
+            color: var(--asu-maroon);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--asu-gold);
+            padding-left: 15px;
+        }
+
+        ul {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: var(--asu-gold);
+            font-size: 0.9rem;
+            top: 4px;
+        }
+
+        strong {
+            color: var(--asu-maroon);
+        }
+
+        .highlight {
+            color: var(--asu-maroon);
+            background: rgba(255, 198, 39, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+        
+        th {
+            background-color: var(--asu-maroon);
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 12px;
+        }
+
+        td {
+            border-bottom: 1px solid var(--asu-light-gray);
+            padding: 12px;
+        }
+
+        tr:hover {
+            background-color: #fffdf5;
+        }
+
+        /* Navigation Controls */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        button {
+            background-color: var(--asu-maroon);
+            color: white;
+            border: 2px solid var(--asu-maroon);
+            padding: 10px 25px;
+            border-radius: 0; /* ASU style is often angular */
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--asu-gold);
+            border-color: var(--asu-gold);
+            color: var(--asu-maroon);
+        }
+
+        button:disabled {
+            background-color: var(--asu-light-gray);
+            border-color: var(--asu-light-gray);
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.05);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--asu-maroon);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            color: var(--asu-gray);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        /* Title Page Specifics */
+        .asu-logo-text {
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--asu-maroon);
+            margin-bottom: 40px;
+        }
+        .asu-logo-text span {
+            color: var(--asu-gold);
+        }
+
+        /* Print Styles */
+        @media print {
+            body { overflow: visible; background: white; }
+            #presentation { display: block; height: auto; }
+            .slide {
+                position: relative;
+                opacity: 1;
+                transform: none;
+                width: 100%;
+                max-width: none;
+                aspect-ratio: 16/9;
+                box-shadow: none;
+                border: 2px solid var(--asu-maroon);
+                page-break-after: always;
+                margin-bottom: 20px;
+                height: 100vh;
+                display: flex !important;
+            }
+            .controls, #print-btn, .progress-container { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="presentation">
+    <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: left;">
+            <div class="asu-logo-text">ARIZONA STATE <span>UNIVERSITY</span></div>
+            <h1>ACC 2026 Revision Plan</h1>
+            <div class="title-underline"></div>
+            <h2>Principal Investigator Review Meeting</h2>
+            <div style="margin-top: 3rem; border-left: 5px solid var(--asu-maroon); padding-left: 20px;">
+                <p style="margin: 5px 0;"><strong>Presenter:</strong> Prajjwal Dutta</p>
+                <p style="margin: 5px 0;"><strong>Date:</strong> January 23, 2026</p>
+                <p style="margin: 5px 0; color: var(--asu-gray);">Subject: Concrete Revision List & Timeline</p>
+            </div>
+        </div>
+        <div class="slide-number">1/12</div>
+    </div>
+
+    <!-- Slide 2: Executive Summary -->
+    <div class="slide">
+        <h1>Executive Summary</h1>
+        <div class="title-underline"></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px;">
+            <div>
+                <h3>Status Overview</h3>
+                <p>Initial outcome: Rejection</p>
+                <ul>
+                    <li><strong>Reviewer 18:</strong> 4 Major concerns (Methodology & Proofs)</li>
+                    <li><strong>Reviewer 25:</strong> 4 Constructive items (Stability & Citations)</li>
+                </ul>
+            </div>
+            <div style="background-color: var(--asu-light-gray); padding: 25px; border-radius: 4px;">
+                <h3 style="border: none; padding: 0;">Strategy</h3>
+                <p>We leverage <em>DISTRIBUTED_VALIDATION.md</em> content which addresses <strong>70%</strong> of critical gaps.</p>
+                <p><strong>Goal:</strong> 3-week sprint to finalize proofs and run N=150 experiments.</p>
+            </div>
+        </div>
+        <div class="slide-number">2/12</div>
+    </div>
+
+    <!-- Slide 3: Reviewer 18 -->
+    <div class="slide">
+        <h1>Reviewer 18: Major Concerns</h1>
+        <div class="title-underline"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 60%;">Reviewer Comment</th>
+                    <th>Priority</th>
+                    <th>Resolution Path</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Models in Sec II-A and II-B are inconsistent</td>
+                    <td><span class="highlight">HIGH</span></td>
+                    <td>Add Remark 1 (Sim vs Ctrl)</td>
+                </tr>
+                <tr>
+                    <td>Flow term same for all robots → low novelty</td>
+                    <td><span class="highlight" style="background:#8C1D40; color:white;">CRITICAL</span></td>
+                    <td>Clarify spatial variance/vortices</td>
+                </tr>
+                <tr>
+                    <td>Problem statement lacks mathematical rigor</td>
+                    <td><span class="highlight">HIGH</span></td>
+                    <td>Formalize state/constraints</td>
+                </tr>
+                <tr>
+                    <td>Lack of proof showing problem is solved</td>
+                    <td><span class="highlight" style="background:#8C1D40; color:white;">CRITICAL</span></td>
+                    <td>Insert Theorems 1-3</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="slide-number">3/12</div>
+    </div>
+
+    <!-- Slide 4: Reviewer 25 -->
+    <div class="slide">
+        <h1>Reviewer 25: Enhancements</h1>
+        <div class="title-underline"></div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 60%;">Suggestion</th>
+                    <th>Effort</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Convergence or stability guarantees</td>
+                    <td>Medium</td>
+                    <td>✅ Proofs ready in draft</td>
+                </tr>
+                <tr>
+                    <td>Ambiguity in 'dmin' parameter</td>
+                    <td>Low</td>
+                    <td>⚠️ Simple notation update</td>
+                </tr>
+                <tr>
+                    <td>Clarify Lyapunov application in QP</td>
+                    <td>Medium</td>
+                    <td>⚠️ Update Section III-B</td>
+                </tr>
+                <tr>
+                    <td>Update bibliography (Missing 10+ refs)</td>
+                    <td>High</td>
+                    <td>⚠️ Researching new lit</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="slide-number">4/12</div>
+    </div>
+
+    <!-- Slide 5: Existing Theory -->
+    <div class="slide">
+        <h1>Available Theoretical Proofs</h1>
+        <div class="title-underline"></div>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px; border: 1px solid var(--asu-gold); padding: 15px;">
+                <h3 style="font-size: 1.1rem;">Connectivity (Thm 1)</h3>
+                <p style="font-size: 0.9rem;">Proves $\lambda_2(L)$ preservation via edge pruning constraints using Fiedler's theorem.</p>
+            </div>
+            <div style="flex: 1; min-width: 300px; border: 1px solid var(--asu-gold); padding: 15px;">
+                <h3 style="font-size: 1.1rem;">Liveness (Thm 2)</h3>
+                <p style="font-size: 0.9rem;">Consensus logic ensures unanimous decision-making and algorithm termination.</p>
+            </div>
+            <div style="flex: 1; min-width: 300px; border: 1px solid var(--asu-gold); padding: 15px;">
+                <h3 style="font-size: 1.1rem;">Optimality (Thm 3)</h3>
+                <p style="font-size: 0.9rem;">Demonstrates greedy pruning is locally optimal for maximizing connectivity.</p>
+            </div>
+        </div>
+        <p style="margin-top: 20px; color: var(--asu-maroon); font-weight: bold;">Source: Already documented in project validation files.</p>
+        <div class="slide-number">5/12</div>
+    </div>
+
+    <!-- Slide 6: Category A -->
+    <div class="slide">
+        <h1>Category A: Theory Transfer</h1>
+        <div class="title-underline"></div>
+        <ul>
+            <li><strong>Theoretic Section (III-C):</strong> Port existing proofs for Connectivity, Liveness, and Optimality.</li>
+            <li><strong>Formalization:</strong> Convert Section II into a rigorous Mathematical Problem Statement.</li>
+            <li><strong>Model Mapping:</strong> Distinguish the high-fidelity simulation model from the control-oriented model.</li>
+            <li><strong>QP Constraints:</strong> Explicitly state the CLF-CBF Quadratic Program formulation.</li>
+        </ul>
+        <div class="slide-number">6/12</div>
+    </div>
+
+    <!-- Slide 7: Category B -->
+    <div class="slide">
+        <h1>Category B: Literature Review</h1>
+        <div class="title-underline"></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <h3>Target Areas</h3>
+                <ul>
+                    <li>Underwater swarms</li>
+                    <li>Distributed CLF CBF implementation</li>
+                    <li>Distributed spectral graph theory</li>
+                </ul>
+            </div>
+            <div>
+                <h3>Key Additions</h3>
+                <p>Include comparison table with 5 recent SOTA methods focusing on: 
+                    <br><em>1. Distributed? 2. Energy? 3. Safety?</em>
+                </p>
+            </div>
+        </div>
+        <div class="slide-number">7/12</div>
+    </div>
+
+    <!-- Slide 8: Category C -->
+    <div class="slide">
+        <h1>Category C: Quantitative Testing</h1>
+        <div class="title-underline"></div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div style="background: var(--asu-light-gray); padding: 15px;">
+                <strong>Connectivity</strong>
+                <p style="font-size: 0.85rem;">Plot $\lambda_2$ vs Time for all trials to show safety margin.</p>
+            </div>
+            <div style="background: var(--asu-light-gray); padding: 15px;">
+                <strong>Efficiency</strong>
+                <p style="font-size: 0.85rem;">Integral of $u^2$ vs baseline. Goal: >60% savings.</p>
+            </div>
+            <div style="background: var(--asu-light-gray); padding: 15px;">
+                <strong>Scalability</strong>
+                <p style="font-size: 0.85rem;">Compute overhead for $N \in \{5, 20, 50, 100\}$.</p>
+            </div>
+            <div style="background: var(--asu-light-gray); padding: 15px;">
+                <strong>Robustness</strong>
+                <p style="font-size: 0.85rem;">System performance under 20% packet loss.</p>
+            </div>
+        </div>
+        <div class="slide-number">8/12</div>
+    </div>
+
+    <!-- Slide 9: Category D -->
+    <div class="slide">
+        <h1>Category D: Final Packaging</h1>
+        <div class="title-underline"></div>
+        <ul>
+            <li><strong>Response Letter:</strong> Detailed point-by-point rebuttal linked to paper edits.</li>
+            <li><strong>Visualization:</strong> Replace legacy MATLAB plots with high-res vectorized Python/TikZ figures.</li>
+            <li><strong>Energy Proof:</strong> Supplementary data showing current-vortex exploitation.</li>
+        </ul>
+        <div class="slide-number">9/12</div>
+    </div>
+
+    <!-- Slide 10: Timeline -->
+    <div class="slide">
+        <h1>3-Week Revision Timeline</h1>
+        <div class="title-underline"></div>
+        <div style="position: relative; padding-left: 30px; border-left: 2px solid var(--asu-gold);">
+            <div style="margin-bottom: 25px;">
+                <span style="font-weight: bold; color: var(--asu-maroon);">WEEK 1: Foundation</span>
+                <p style="margin: 0; font-size: 0.9rem;">Proof transfer, Problem formalization, Lit review update.</p>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <span style="font-weight: bold; color: var(--asu-maroon);">WEEK 2: Validation</span>
+                <p style="margin: 0; font-size: 0.9rem;">Running 150+ batch simulations & generating performance metrics.</p>
+            </div>
+            <div>
+                <span style="font-weight: bold; color: var(--asu-maroon);">WEEK 3: Delivery</span>
+                <p style="margin: 0; font-size: 0.9rem;">Response letter drafting, final figure polish, and internal review.</p>
+            </div>
+        </div>
+        <div class="slide-number">10/12</div>
+    </div>
+
+    <!-- Slide 11: Discussion -->
+    <div class="slide">
+        <h1>Discussion Points</h1>
+        <div class="title-underline"></div>
+        <ol>
+            <li><strong>Submission Venue:</strong> Stick with ACC 2027 or target a Journal (T-RO)?</li>
+            <li><strong>Computational Limits:</strong> Is the $N=100$ scalability test required for this scope?</li>
+            <li><strong>Theorem Rigor:</strong> Do we need a Lyapunov Stability proof for the switching topology?</li>
+        </ol>
+        <div class="slide-number">11/12</div>
+    </div>
+
+    <!-- Slide 12: Next Steps -->
+    <div class="slide">
+        <h1>Immediate Actions</h1>
+        <div class="title-underline"></div>
+        <div style="text-align: center; margin-top: 50px;">
+            <p style="font-size: 1.4rem;"><strong>Awaiting Approval of Revision Plan</strong></p>
+            <div style="display: inline-block; text-align: left; background: var(--asu-maroon); color: white; padding: 20px; margin-top: 20px;">
+                <p style="margin: 5px 0;">🎯 <strong>Tonight:</strong> Initiate Theory Transfer</p>
+                <p style="margin: 5px 0;">🎯 <strong>Monday:</strong> Begin Literature Deep-Dive</p>
+                <p style="margin: 5px 0;">🎯 <strong>Friday:</strong> First Draft of New Section III</p>
+            </div>
+        </div>
+        <div class="slide-number">12/12</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button id="prev-btn" onclick="prevSlide()">Back</button>
+        <button id="next-btn" onclick="nextSlide()">Next</button>
+        <button id="print-btn" onclick="window.print()" style="background: var(--asu-black); border-color: var(--asu-black);">Export PDF</button>
+    </div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    function showSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= slides.length) index = slides.length - 1;
+
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active', 'prev');
+            if (i === index) {
+                slide.classList.add('active');
+            } else if (i < index) {
+                slide.classList.add('prev');
+            }
+        });
+
+        currentSlide = index;
+        
+        // Update Progress Bar
+        const progress = ((index + 1) / slides.length) * 100;
+        progressBar.style.width = `${progress}%`;
+
+        // Update Button States
+        prevBtn.disabled = index === 0;
+        
+        if (index === slides.length - 1) {
+            nextBtn.textContent = "Finish";
+        } else {
+            nextBtn.textContent = "Next";
+        }
+    }
+
+    function nextSlide() {
+        if (currentSlide < slides.length - 1) {
+            showSlide(currentSlide + 1);
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            showSlide(currentSlide - 1);
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+        else if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    showSlide(0);
+</script>
+
+</body>
+</html>

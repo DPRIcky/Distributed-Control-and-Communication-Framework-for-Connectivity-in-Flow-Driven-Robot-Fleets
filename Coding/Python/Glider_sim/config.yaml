@@ -1,0 +1,19 @@
+auv:
+  mass: 50.0              # kg
+  volume: 0.05            # m^3
+  radius: 0.1             # m
+  length: 1.5             # m
+
+  center_of_mass: [0.0, 0.0, 0.0]       # in body frame
+  center_of_buoyancy: [0.0, 0.0, 0.05]  # offset upward
+
+  I: [1.0, 1.0, 2.0]       # Moments of inertia (Ixx, Iyy, Izz) [kg·m²]
+  gravity: 9.81            # m/s²
+  fluid_density: 1025      # kg/m³ (sea water)
+
+  max_buoyancy_shift: 1.0  # kg
+  max_cg_shift: 0.05       # m (forward-backward)
+
+simulation:
+  time_step: 0.01
+  total_time: 60.0

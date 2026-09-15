@@ -1,0 +1,204 @@
+{
+  "parameters": {
+    "N": 10,
+    "root": 0,
+    "R_comm": 2.0,
+    "T_bcast": 1.0,
+    "jitter": 0.2,
+    "p_drop": 0.1,
+    "loss_model": "iid",
+    "p_drop_good": 0.02,
+    "p_drop_bad": 0.9,
+    "p_gb": 0.05,
+    "p_bg": 0.125,
+    "L_bad": null,
+    "ge_init_state": "GOOD",
+    "ge_debug": false,
+    "ge_debug_link": null,
+    "ge_debug_link_max": 50,
+    "ge_min_link_samples": 10,
+    "delay_max": 0.5,
+    "rate_cap_bps": 64000.0,
+    "queue_max_msgs": 500,
+    "queue_drop_policy": "drop_tail",
+    "T_prune": 60.0,
+    "T_stable": 5.0,
+    "early_stop": true,
+    "sigma_v": 0.05,
+    "seed": 3,
+    "viz_interval": 2.0,
+    "no_viz": true,
+    "fast_viz": false,
+    "debug_viz": false,
+    "debug_term": false,
+    "tag": "sweep_N10_cap64000_s3",
+    "flow_mode": "vortex",
+    "const_current": [
+      0.5,
+      0.0,
+      0.0
+    ],
+    "vortex_cx": 0.0,
+    "vortex_cy": 0.0,
+    "flow_strength_scale": 1.0,
+    "spawn_mode": "chain",
+    "spacing": 1.6,
+    "cluster_radius": 3.0,
+    "deg_root_max": 4,
+    "min_hops": 3,
+    "root_mode": "min_degree",
+    "goal": [
+      20.0,
+      0.0,
+      -5.0
+    ],
+    "goal_draw": true,
+    "edge_draw": true,
+    "draw_lifetime": 0.25,
+    "k_goal": 0.3,
+    "v_max": 0.6,
+    "alpha_cbf": 1.0,
+    "d_safe": 1.5,
+    "alpha_safe": 2.0,
+    "cbf_passes": 3,
+    "cbf_enable": true,
+    "thruster_gain": 10.0,
+    "thruster_clip": 10.0,
+    "tiebreak_mode": "distance",
+    "hysteresis_margin": 0.2,
+    "hysteresis_count": 2
+  },
+  "channel_model": {
+    "loss_model": "iid",
+    "ge_transition_unit": "per_send",
+    "iid_p_drop": 0.1,
+    "ge_p_drop_good": 0.02,
+    "ge_p_drop_bad": 0.9,
+    "ge_p_gb": 0.05,
+    "ge_p_bg_effective": 0.125,
+    "ge_L_bad": null,
+    "ge_init_state": "GOOD",
+    "ge_p_bg_precedence": "p_bg_used"
+  },
+  "queue_model": {
+    "rate_limit_enabled": true,
+    "rate_cap_bps": 64000.0,
+    "queue_max_msgs": 500,
+    "queue_drop_policy": "drop_tail"
+  },
+  "topology": {
+    "root": 8,
+    "deg_root": 1,
+    "max_hop_from_root": 3,
+    "init_edges": 17
+  },
+  "results": {
+    "duration_s": 17.733,
+    "termination_reason": "early_stop_stable",
+    "t_tree_first": 2.417,
+    "t_tree_stable_first": 17.733,
+    "t_goal_reached": 15.2,
+    "pruned_edges": 9,
+    "connected": true,
+    "is_tree": true,
+    "reachable_from_root": 10,
+    "tx_msgs": 629,
+    "rx_msgs": 569,
+    "dropped_msgs": 60,
+    "tx_bytes": 3774,
+    "rx_bytes": 3414,
+    "tx_Bps": 212.8,
+    "rx_Bps": 192.5,
+    "observed_drop_rate": 0.0954,
+    "ge_num_state_updates": 0,
+    "ge_num_bad_runs": 0,
+    "ge_bad_fraction_expected": 0.0,
+    "ge_bad_send_fraction": 0.0,
+    "ge_avg_bad_run_length": 0.0,
+    "ge_links_total": 0,
+    "ge_links_with_enough_samples": 0,
+    "ge_min_link_samples": 10,
+    "ge_bad_send_fraction_per_link_stats": {
+      "mean": null,
+      "median": null,
+      "min": null,
+      "max": null,
+      "n": 0
+    },
+    "ge_links_with_enough_runs": 0,
+    "ge_bad_run_length_per_link_stats": {
+      "mean": null,
+      "median": null,
+      "min": null,
+      "max": null,
+      "n": 0
+    },
+    "ge_senders_total": 0,
+    "ge_senders_with_enough_samples": 0,
+    "ge_bad_send_fraction_per_sender_stats": {
+      "mean": null,
+      "median": null,
+      "min": null,
+      "max": null,
+      "n": 0
+    },
+    "ge_bad_run_length_per_sender_stats": {
+      "mean": null,
+      "median": null,
+      "min": null,
+      "max": null,
+      "n": 0
+    },
+    "cbf_corrections": 28005,
+    "queue_delay_mean_s": 0.0,
+    "queue_delay_p95_s": 0.0,
+    "queue_overflow_drops": 0,
+    "queue_max_occupancy": 9,
+    "queue_overflow_drop_rate": 0.0,
+    "final_mean_d2goal": 1.364,
+    "final_max_d2goal": 1.77
+  },
+  "node_state": {
+    "0": {
+      "delta": 1,
+      "parent": 8
+    },
+    "1": {
+      "delta": 1,
+      "parent": 8
+    },
+    "2": {
+      "delta": 1,
+      "parent": 8
+    },
+    "3": {
+      "delta": 2,
+      "parent": 2
+    },
+    "4": {
+      "delta": 1,
+      "parent": 8
+    },
+    "5": {
+      "delta": 2,
+      "parent": 4
+    },
+    "6": {
+      "delta": 1,
+      "parent": 8
+    },
+    "7": {
+      "delta": 2,
+      "parent": 2
+    },
+    "8": {
+      "delta": 0.0,
+      "parent": null
+    },
+    "9": {
+      "delta": 2,
+      "parent": 1
+    }
+  },
+  "timestamp": "2026-03-03T21:23:53.592865"
+}

@@ -1,0 +1,1 @@
+t=39.7 | TREE=1 | T_tree=3.2 s | E_disk=27 E_tree=9 pruned=18 reach=10/10 | TX=1795 RX=1342 drop=453 rate=25.24% | TX_Bps=291.0 RX_Bps=213.0 | q_p95_ms=0.0 | model=ge

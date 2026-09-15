@@ -488,24 +488,70 @@ This paper went through several revisions. The main shifts in framing were:
 
 ## Repository Contents
 
+This repository holds my complete PhD research workspace: code, experiments, manuscripts and supporting material. The IROS 2026 paper described above is the most recent and complete result.
+
+### Where to start
+
+| If you want… | Go to |
+|---|---|
+| The **δ-BFS protocol, CLF–CBF controller, baselines and 2D stress tests** | [`Coding/Python/Comunication algorithm most recent work/`](Coding/Python/Comunication%20algorithm%20most%20recent%20work/) |
+| The **3D HoloOcean + BlueROV2 experiments** (pruning epochs, GE channel, rate-cap sweeps, paper figures) | [`Coding/Simulator/holoocean/holoocean_pruning_project/`](Coding/Simulator/holoocean/holoocean_pruning_project/) |
+| The **final paper and every draft** | [`Conference/IROS 2026/`](Conference/IROS%202026/) |
+
+### Map
+
 ```text
 .
-├── README.md                          # this document: full technical summary of the paper
-└── media/
-    ├── overview.gif                   # full demo video (3× speed)
-    ├── delta_bfs_10_robots.gif        # 10-robot δ-BFS pruning in HoloOcean
-    ├── scaling_20_robots.gif          # 20-robot scaling run in HoloOcean
-    └── figures/
-        ├── fig1_delta_bfs_example.png
-        ├── fig2_gilbert_elliott_bursty_loss.png
-        ├── fig3_fifo_rate_limiting.png
-        ├── fig4_distance_dependent_impairment.png
-        ├── fig5_edge_count_baselines.png
-        ├── fig6_holoocean_scene.jpg
-        └── fig7_holoocean_pruning_epoch.png
+├── README.md                                   # this document
+├── media/                                      # README GIFs + figures extracted from the final paper
+│
+├── Coding/
+│   ├── Python/
+│   │   ├── Comunication algorithm most recent work/   # ★ main codebase for ACC 2026 → IROS 2026
+│   │   │   ├── distributed_pruning/, concurrent_pruning/, consensus/, consensus_baseline/
+│   │   │   ├── Critical_edge_detection_baseline/, GHS/, Minimum_Spanning_Tree_new_mwthond/, baseline methods/
+│   │   │   ├── controllers/ (CLF–CBF), core/, graph/, simulation/, visualization/, utils/, config/
+│   │   │   ├── experiments*/  (scenario and time-series results; files >10 MB omitted)
+│   │   │   ├── tests/, test_*.py, validate_cbf_final.py
+│   │   │   └── ACC_2026/ (LaTeX source), docs/, figures/, *.md implementation notes
+│   │   ├── Decentralized Connectivity and Control/    # earlier iterations (Mach 7, Old, ongoing) + demo media
+│   │   ├── Working codes/                             # MLCCST, decentralized CLF–CBF, flow-field prototypes
+│   │   ├── Baseline Implementation of the papers/     # re-implementations: deadlock resolution; reconfigurable coordination
+│   │   ├── Glider_sim/                                # 6-DOF underwater glider simulator
+│   │   └── *.gif                                      # early simulation animations
+│   ├── Simulator/
+│   │   ├── holoocean/                                 # ONLY my additions to the HoloOcean clone (see note below)
+│   │   │   ├── holoocean_pruning_project/             # ★ IROS HoloOcean runs: pruning/, holoocean_runs/, sweeps/,
+│   │   │   │                                          #   stress_results_holoocean/, figures/, notes/
+│   │   │   ├── holoocean sequential pruning/          # sequential-pruning algorithm + verification scripts
+│   │   │   └── client/test.py, client/tests/*         # keyboard / autonomous BlueROV2 control tests
+│   │   └── Ocean Package details.txt
+│   ├── MATLAB/                                        # Mach 1 distributed-obstacle CBF prototype, task scripts
+│   ├── Blimp/                                         # ROS 2 blimp workspace (WVU Blimps team, GPLv3)
+│   └── Documentation Reports/Mothership_Report/       # semester report (LaTeX + PDF)
+│
+├── Conference/
+│   ├── IROS 2026/                                     # final paper, drafts 1–4, plans, ICRA update slides, figures, small videos
+│   ├── IROS_2026_1st_draft/                           # LaTeX source of the first IROS draft
+│   ├── ACC 2026/                                      # ACC paper, revision plans, media
+│   ├── SWRS Poster/                                   # SWRS 2025 poster and report
+│   └── ICRA Workshop.pdf, Conference list.xlsx
+│
+├── HW 26 Dec, 2025/                                   # literature review + Research-Assignment (MATLAB/ROS 2 navigation stack)
+├── Reading/                                           # READING_LIST.md (titles only) + my notes
+└── PPT/Images/                                        # whiteboard notes
 ```
 
-This repository documents the research. Large files (full-resolution videos and manuscript PDFs) are intentionally not tracked.
+### What is intentionally not included
+
+| Omitted | Why |
+|---|---|
+| Files larger than **10 MB** (full-resolution videos, the ~97 MB `comprehensive_results_*.json` experiment dumps, large GIFs and decks) | Upload size. The GIFs in `media/` cover the IROS video. |
+| Upstream **HoloOcean** simulator source and Unreal assets | Third-party code: get it from [byu-holoocean/HoloOcean](https://github.com/byu-holoocean/HoloOcean) (v2.2.2). Only my own additions are tracked here. |
+| `mothership-comms-controls-simulator`, `clean_modular_repo` | These belong to a private lab repository. |
+| Published papers (`Reading/` PDFs and paper PDFs inside code folders) | Copyrighted. See [`Reading/READING_LIST.md`](Reading/READING_LIST.md). |
+| Purchase lists, receipts, reimbursement forms, NIWC material | Administrative or not part of this research. |
+| `latex/` (MiKTeX install), `.venv`, `__pycache__`, LaTeX build artifacts, installers | Tooling and caches. |
 
 ---
 
