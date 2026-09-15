@@ -1,0 +1,15 @@
+# Large binaries are intentionally not tracked
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.pdf
+*.pptx
+*.docx
+*.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
